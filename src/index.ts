@@ -1,20 +1,10 @@
-export { Vec3 } from './math/Vec3';
-export type { IVec3 } from './math/Vec3';
+/**
+ * @file Public entry point for `@transcendence/game-shared`.
+ *
+ * Anything exported from here is part of the public API contract between the
+ * Colyseus server and the Babylon client. Internal helpers should stay
+ * unexported. Breaking changes here ripple to both apps simultaneously.
+ */
 
-export { TerrainGenerator } from './world/TerrainGenerator';
-
-export { HealthSystem } from './systems/HealthSystem';
-export type { HealthChangeListener, DeathListener } from './systems/HealthSystem';
-
-export { HitDetector } from './combat/HitDetector';
-export type { HitDetectorConfig } from './combat/HitDetector';
-export { SwingAnimation } from './combat/SwingAnimation';
-export type { SwingAnimationConfig } from './combat/SwingAnimation';
-
-export { DifficultyCurve } from './difficulty/DifficultyCurve';
-export type { DifficultyCurveConfig, UnlockEntry } from './difficulty/DifficultyCurve';
-export { MonsterCatalog } from './difficulty/MonsterCatalog';
-export type { MonsterType, ColorRgb } from './difficulty/MonsterType';
-
-export { MonsterAI } from './entities/MonsterAI';
-export type { MonsterAIConfig } from './entities/MonsterAI';
+export * from './protocol';
+export type { InputCommand, PlayerStateView } from './types';
