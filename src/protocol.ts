@@ -23,7 +23,24 @@ export const ROOM_NAME = 'game' as const;
 export const ClientMessage = {
 	/** Per-tick movement / action input from the local player. */
 	Input: 'input',
+	/** Latency probe: client sends a local timestamp, expects a {@link ServerMessage.Pong} echo. */
+	Ping: 'ping',
+	/** Client-measured round-trip latency, written into the synced state by the server. */
+	ReportLatency: 'reportLatency',
 } as const;
 
 /** Union of all valid client→server message identifiers. */
 export type ClientMessageName = (typeof ClientMessage)[keyof typeof ClientMessage];
+
+/**
+ * Names of all messages the server may send to a single client (out-of-band of
+ * the synced state). State-sync changes flow through Colyseus' schema diffing
+ * mechanism and are not declared here.
+ */
+export const ServerMessage = {
+	/** Echo of a {@link ClientMessage.Ping}: lets the client measure RTT. */
+	Pong: 'pong',
+} as const;
+
+/** Union of all valid server→client message identifiers. */
+export type ServerMessageName = (typeof ServerMessage)[keyof typeof ServerMessage];

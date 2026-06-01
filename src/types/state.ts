@@ -23,4 +23,11 @@ export interface PlayerStateView {
 	readonly y: number;
 	/** World position Z (meters). */
 	readonly z: number;
+	/**
+	 * Latest round-trip latency reported by the client itself, in ms.
+	 *
+	 * Zero means "no measurement yet" — clients render this as `--` rather than
+	 * a real number until the first ping/pong cycle completes.
+	 */
+	readonly latencyMs: number;
 }

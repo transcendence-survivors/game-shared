@@ -7,4 +7,10 @@
  */
 
 export * from './protocol';
-export type { InputCommand, PlayerStateView } from './types';
+export type {
+	InputCommand,
+	PingPayload,
+	PongPayload,
+	ReportLatencyPayload,
+	PlayerStateView,
+} from './types';

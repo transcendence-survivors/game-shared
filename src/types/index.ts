@@ -5,5 +5,5 @@
  * over deep paths so internal reorganisation stays a non-breaking change.
  */
 
-export type { InputCommand } from './messages';
+export type { InputCommand, PingPayload, PongPayload, ReportLatencyPayload } from './messages';
 export type { PlayerStateView } from './state';
