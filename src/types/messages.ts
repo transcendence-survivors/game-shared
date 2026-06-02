@@ -3,8 +3,11 @@
  *
  * One interface per {@link ClientMessage} / {@link ServerMessage} entry. The
  * server is authoritative for gameplay — it consumes input payloads and updates
- * the synced state accordingly. Clients never mutate their own position based
- * on local input.
+ * the synced state accordingly. For responsiveness the client may *predict* the
+ * local player's horizontal motion from the same inputs and then reconcile
+ * against each authoritative snapshot (see `LocalPredictor` client-side). The
+ * server stays the single source of truth; prediction never changes what it
+ * broadcasts.
  */
 
 /**
@@ -27,6 +30,15 @@ export interface InputCommand {
 	moveZ: number;
 	/** `true` when the player wants to jump this tick. */
 	jump: boolean;
+	/**
+	 * Monotonic per-client sequence number, incremented once per sent input.
+	 *
+	 * The server stores the latest value it has applied and echoes it back via
+	 * `PlayerStateView.lastSeq`. The client uses that acknowledgement to drop
+	 * already-applied inputs and replay only the still-pending ones when
+	 * reconciling its prediction (see `LocalPredictor`).
+	 */
+	seq: number;
 }
 
 /**

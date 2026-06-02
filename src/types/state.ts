@@ -30,4 +30,11 @@ export interface PlayerStateView {
 	 * a real number until the first ping/pong cycle completes.
 	 */
 	readonly latencyMs: number;
+	/**
+	 * Sequence number of the most recent {@link InputCommand} this player's
+	 * client sent that the server has applied. The client compares it against
+	 * its own pending inputs to reconcile prediction. Zero before the first
+	 * input is received.
+	 */
+	readonly lastSeq: number;
 }
