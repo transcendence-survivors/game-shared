@@ -6,12 +6,57 @@
  */
 
 /**
- * Canonical Colyseus room name.
+ * Canonical Colyseus room name for an actual game / lobby instance.
  *
- * Used by the client when calling `Colyseus.Client.joinOrCreate(ROOM_NAME, …)`
- * and by the server when calling `gameServer.define(ROOM_NAME, GameRoom)`.
+ * Used by the client when creating or joining a game room
+ * (`Colyseus.Client.create(ROOM_NAME, …)` / `joinById` / `join`) and by the
+ * server when calling `gameServer.define(ROOM_NAME, GameRoom)`.
  */
 export const ROOM_NAME = 'game' as const;
+
+/**
+ * Name of the built-in Colyseus {@link https://docs.colyseus.io/builtin-rooms/lobby/ | LobbyRoom}.
+ *
+ * The client joins this room to receive a live-updating list of public
+ * {@link ROOM_NAME} rooms (created / filled / started / disposed). It carries no
+ * gameplay — it is purely a real-time directory of joinable public games.
+ */
+export const LOBBY_NAME = 'lobby' as const;
+
+/**
+ * Visibility / matchmaking mode chosen by the room's host at creation time.
+ *
+ * - `Public`: listed in the {@link LOBBY_NAME} directory, joinable by anyone via
+ *   its room id.
+ * - `Private`: hidden from the directory (`room.setPrivate(true)` server-side),
+ *   joinable only by supplying its `roomName` **and** the host-defined password.
+ */
+export const RoomMode = {
+	/** Listed publicly, no password. */
+	Public: 'public',
+	/** Hidden from the directory, requires name + password to join. */
+	Private: 'private',
+} as const;
+
+/** Union of all valid room modes. */
+export type RoomModeName = (typeof RoomMode)[keyof typeof RoomMode];
+
+/**
+ * Lifecycle phase of a game room.
+ *
+ * A room is born in `Lobby` (players gather and ready up), then transitions
+ * **once** to `Playing` when everyone is ready. The transition locks the room so
+ * no further clients can join.
+ */
+export const RoomPhase = {
+	/** Waiting room — players join and toggle their ready state. */
+	Lobby: 'lobby',
+	/** Simulation running — the room is locked, no new joins accepted. */
+	Playing: 'playing',
+} as const;
+
+/** Union of all valid room phases. */
+export type RoomPhaseName = (typeof RoomPhase)[keyof typeof RoomPhase];
 
 /**
  * Names of all messages the client may send to the server.
@@ -27,6 +72,10 @@ export const ClientMessage = {
 	Ping: 'ping',
 	/** Client-measured round-trip latency, written into the synced state by the server. */
 	ReportLatency: 'reportLatency',
+	/** Toggle the sender's ready state in the lobby. No payload. */
+	ToggleReady: 'toggleReady',
+	/** Host-only: request to eject another player from the lobby (see {@link KickPayload}). */
+	Kick: 'kick',
 } as const;
 
 /** Union of all valid client→server message identifiers. */
@@ -40,7 +89,18 @@ export type ClientMessageName = (typeof ClientMessage)[keyof typeof ClientMessag
 export const ServerMessage = {
 	/** Echo of a {@link ClientMessage.Ping}: lets the client measure RTT. */
 	Pong: 'pong',
+	/** Sent to a client just before the host ejects it from the lobby (see {@link KickedPayload}). */
+	Kicked: 'kicked',
 } as const;
 
 /** Union of all valid server→client message identifiers. */
 export type ServerMessageName = (typeof ServerMessage)[keyof typeof ServerMessage];
+
+/**
+ * Colyseus room-leave code the server uses when ejecting a kicked player.
+ *
+ * Distinguishes a host-initiated kick from a normal disconnect so the client can
+ * surface an explanatory message instead of silently returning to the menu.
+ * Must be ≥ 4000 (the WebSocket range reserved for application use).
+ */
+export const KICK_LEAVE_CODE = 4000 as const;

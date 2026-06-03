@@ -12,5 +12,12 @@ export type {
 	PingPayload,
 	PongPayload,
 	ReportLatencyPayload,
+	KickPayload,
+	KickedPayload,
+	CreateGameOptions,
+	JoinPublicOptions,
+	JoinPrivateOptions,
+	RoomListItem,
 	PlayerStateView,
+	RoomStateView,
 } from './types';

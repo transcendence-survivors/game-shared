@@ -9,6 +9,8 @@
  * here, otherwise the client will silently lose type-safety for that field.
  */
 
+import type { RoomModeName, RoomPhaseName } from '../protocol';
+
 /**
  * Authoritative per-player state as broadcast by the server.
  *
@@ -17,6 +19,10 @@
  */
 export interface PlayerStateView {
 	readonly id: string;
+	/** Pseudonym chosen by the player at the menu. Shown in the lobby roster. */
+	readonly name: string;
+	/** Whether the player has toggled ready in the lobby. Drives auto-start. */
+	readonly ready: boolean;
 	/** World position X (meters). */
 	readonly x: number;
 	/** World position Y — height above the ground (meters). */
@@ -37,4 +43,28 @@ export interface PlayerStateView {
 	 * input is received.
 	 */
 	readonly lastSeq: number;
+}
+
+/**
+ * Authoritative room-level state as broadcast by the server.
+ *
+ * Mirrors the root Colyseus schema. The client reads `phase` to switch screens
+ * (lobby → in-game), `hostId` to decide whether to show host controls (kick),
+ * and `roomName` / `mode` to label the lobby.
+ *
+ * `players` is intentionally omitted here — the client consumes the player map
+ * through Colyseus' per-entry `onAdd` / `onRemove` callbacks rather than as a
+ * plain object, so its concrete shape stays SDK-specific (see `RoomHandler`).
+ */
+export interface RoomStateView {
+	/** Current lifecycle phase. The client switches screens when this changes. */
+	readonly phase: RoomPhaseName;
+	/** `sessionId` of the host (first joiner). Empty before anyone joins. */
+	readonly hostId: string;
+	/** Host-chosen display name of the game. */
+	readonly roomName: string;
+	/** Visibility mode of the room. */
+	readonly mode: RoomModeName;
+	/** Monotonic simulation tick (only advances once the game is playing). */
+	readonly tick: number;
 }

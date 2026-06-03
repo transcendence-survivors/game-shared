@@ -5,5 +5,16 @@
  * over deep paths so internal reorganisation stays a non-breaking change.
  */
 
-export type { InputCommand, PingPayload, PongPayload, ReportLatencyPayload } from './messages';
-export type { PlayerStateView } from './state';
+export type {
+	InputCommand,
+	PingPayload,
+	PongPayload,
+	ReportLatencyPayload,
+	KickPayload,
+	KickedPayload,
+	CreateGameOptions,
+	JoinPublicOptions,
+	JoinPrivateOptions,
+	RoomListItem,
+} from './messages';
+export type { PlayerStateView, RoomStateView } from './state';
