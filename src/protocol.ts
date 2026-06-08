@@ -30,12 +30,17 @@ export const LOBBY_NAME = 'lobby' as const;
  *   its room id.
  * - `Private`: hidden from the directory (`room.setPrivate(true)` server-side),
  *   joinable only by supplying its `roomName` **and** the host-defined password.
+ * - `Solo`: a single-seat room for one player. Not listed in the directory and
+ *   capped at one client; it auto-starts the instant its creator joins, so the
+ *   player drops straight into the game with no lobby / ready-up step.
  */
 export const RoomMode = {
 	/** Listed publicly, no password. */
 	Public: 'public',
 	/** Hidden from the directory, requires name + password to join. */
 	Private: 'private',
+	/** Single-player, unlisted, auto-starts on join. */
+	Solo: 'solo',
 } as const;
 
 /** Union of all valid room modes. */
@@ -76,6 +81,13 @@ export const ClientMessage = {
 	ToggleReady: 'toggleReady',
 	/** Host-only: request to eject another player from the lobby (see {@link KickPayload}). */
 	Kick: 'kick',
+	/**
+	 * Sent once by a client when it has entered the playing scene and registered
+	 * its terrain-chunk handlers. The server starts streaming chunks to that
+	 * client only after this, so the initial burst is never sent before the
+	 * client can receive it. No payload.
+	 */
+	EnterWorld: 'enterWorld',
 } as const;
 
 /** Union of all valid client→server message identifiers. */
@@ -91,6 +103,10 @@ export const ServerMessage = {
 	Pong: 'pong',
 	/** Sent to a client just before the host ejects it from the lobby (see {@link KickedPayload}). */
 	Kicked: 'kicked',
+	/** A generated terrain chunk streamed to a client entering its range (see {@link ChunkPayload}). */
+	Chunk: 'chunk',
+	/** Tells a client to unload a terrain chunk that left its range (see {@link ChunkDropPayload}). */
+	ChunkDrop: 'chunkDrop',
 } as const;
 
 /** Union of all valid server→client message identifiers. */

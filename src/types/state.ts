@@ -67,4 +67,10 @@ export interface RoomStateView {
 	readonly mode: RoomModeName;
 	/** Monotonic simulation tick (only advances once the game is playing). */
 	readonly tick: number;
+	/**
+	 * Procedural world seed for this room, chosen at creation. The terrain itself
+	 * is streamed as chunks (the client never generates it), but the seed is
+	 * exposed for debugging and any future client-side use.
+	 */
+	readonly seed: number;
 }

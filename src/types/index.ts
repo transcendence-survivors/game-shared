@@ -12,6 +12,8 @@ export type {
 	ReportLatencyPayload,
 	KickPayload,
 	KickedPayload,
+	ChunkPayload,
+	ChunkDropPayload,
 	CreateGameOptions,
 	JoinPublicOptions,
 	JoinPrivateOptions,

@@ -169,3 +169,33 @@ export interface KickedPayload {
 	/** Human-readable reason, e.g. "Kicked by host". */
 	reason: string;
 }
+
+/**
+ * A single generated terrain chunk, streamed to a client when that chunk enters
+ * its streaming window. The server is authoritative: clients never generate
+ * terrain, they only render the bytes received here.
+ *
+ * `data` is `CHUNK_BYTES` long: `CHUNK_AREA` height bytes (`u8`, surface height
+ * in blocks) followed by `CHUNK_AREA` biome bytes, columns in row-major order
+ * (`index = lz * CHUNK_SIZE + lx`). Transported as binary (msgpack `bin`); the
+ * client normalises it back to a `Uint8Array` on receipt.
+ */
+export interface ChunkPayload {
+	/** Chunk X index (world column `cx * CHUNK_SIZE`). */
+	cx: number;
+	/** Chunk Z index. */
+	cz: number;
+	/** Packed heights + biomes, `CHUNK_BYTES` long. */
+	data: Uint8Array;
+}
+
+/**
+ * Tells a client to drop (unload + dispose) a terrain chunk that has left its
+ * streaming window, identified by its chunk coordinate.
+ */
+export interface ChunkDropPayload {
+	/** Chunk X index to unload. */
+	cx: number;
+	/** Chunk Z index to unload. */
+	cz: number;
+}

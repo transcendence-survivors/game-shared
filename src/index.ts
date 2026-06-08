@@ -7,6 +7,7 @@
  */
 
 export * from './protocol';
+export * from './world';
 export type {
 	InputCommand,
 	PingPayload,
@@ -14,6 +15,8 @@ export type {
 	ReportLatencyPayload,
 	KickPayload,
 	KickedPayload,
+	ChunkPayload,
+	ChunkDropPayload,
 	CreateGameOptions,
 	JoinPublicOptions,
 	JoinPrivateOptions,
