@@ -16,6 +16,10 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check ."
 	},
+	"dependencies": {
+		"@colyseus/schema": "^3.0.0",
+		"@colyseus/sdk": "^0.17.42"
+	},
 	"devDependencies": {
 		"typescript": "~5.9.3",
 		"vitest": "^4.1.5"

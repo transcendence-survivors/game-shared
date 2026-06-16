@@ -1,5 +1,15 @@
+import { MapSchema, Schema, type } from '@colyseus/schema';
+
+export interface Vec3d {
+	x: number;
+	y: number;
+	z: number;
+}
+
 export class Player extends Schema {
-	@type(Vect3) pos;
+	@type('number') x!: number;
+	@type('number') y!: number;
+	@type('number') z!: number;
 }
 
 export class MyRoomState extends Schema {
