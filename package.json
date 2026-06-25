@@ -17,7 +17,7 @@
 		"format:check": "prettier --check ."
 	},
 	"dependencies": {
-		"@colyseus/schema": "^3.0.0",
+		"@colyseus/schema": "^4.0.26",
 		"@colyseus/sdk": "^0.17.42"
 	},
 	"devDependencies": {
