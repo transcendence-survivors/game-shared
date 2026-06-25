@@ -35,6 +35,7 @@ export class Player extends Schema {
 	@type('number') z: number = 0;
 	@type('number') rotationY: number = 0;
 	@type('number') lastProcessedSeq: number = 0;
+	@type('string') animState: 'idle' | 'moving' = 'idle';
 }
 
 export class GameState extends Schema {
