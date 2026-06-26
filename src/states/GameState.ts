@@ -1,7 +1,7 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 
 export const MAX_DT = 0.1;
-export const SPEED = 0.1;
+export const SPEED = 1.0;
 export const ROTATION_SPEED = 0.05;
 
 export interface Vec3d {
