@@ -19,5 +19,5 @@
     	"emitDecoratorMetadata": true,
 		"useDefineForClassFields": false
 	},
-	"include": ["src"]
+	"include": ["src", "../client/src/map"]
 }

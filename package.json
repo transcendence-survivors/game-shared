@@ -18,7 +18,8 @@
 	},
 	"dependencies": {
 		"@colyseus/schema": "^4.0.26",
-		"@colyseus/sdk": "^0.17.42"
+		"@colyseus/sdk": "^0.17.42",
+    	"@babylonjs/core": "^9.4.1"
 	},
 	"devDependencies": {
 		"typescript": "~5.9.3",
