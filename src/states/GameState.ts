@@ -1,3 +1,4 @@
+import type { Vector3 } from '@babylonjs/core';
 import { MapSchema, Schema, type } from '@colyseus/schema';
 
 export const MAX_DT = 0.1;
@@ -55,21 +56,53 @@ export function getForwardVector(rotationY: number): Vec2d {
 	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };
 }
 
+export function getCameraYaw(cameraForward) {
+	cameraForward.y = 0;
+	cameraForward.normalize();
+	return Math.atan2(cameraForward.x, cameraForward.z);
+}
+
 export function applyMovement(
 	state: MovementState,
 	input: MoveInput,
+	cameraYaw: number,
 ): MovementState {
 	let { x, z, rotationY } = state;
-	if (input.right) rotationY += ROTATION_SPEED;
-	if (input.left) rotationY -= ROTATION_SPEED;
-	let deltaZ = 0;
-	if (input.forward) deltaZ += SPEED;
-	if (input.backward) deltaZ -= SPEED;
-	if (deltaZ !== 0) {
-		const forward = getForwardVector(rotationY);
-		x += forward.x * deltaZ;
-		z += forward.z * deltaZ;
+	const hasMoveInput =
+		input.forward || input.backward || input.left || input.right;
+
+	if (hasMoveInput) {
+		const forward = getForwardVector(cameraYaw);
+		const right = getForwardVector(cameraYaw + Math.PI / 2);
+		let moveX = 0;
+		let moveZ = 0;
+		if (input.forward) {
+			moveX += forward.x;
+			moveZ += forward.z;
+		}
+		if (input.backward) {
+			moveX -= forward.x;
+			moveZ -= forward.z;
+		}
+		if (input.right) {
+			moveX += right.x;
+			moveZ += right.z;
+		}
+		if (input.left) {
+			moveX -= right.x;
+			moveZ -= right.z;
+		}
+		const len = Math.hypot(moveX, moveZ);
+		if (len > 0) {
+			moveX /= len;
+			moveZ /= len;
+
+			x += moveX * SPEED;
+			z += moveZ * SPEED;
+			rotationY = Math.atan2(moveX, moveZ);
+		}
 	}
+
 	return { x, z, rotationY };
 }
 
