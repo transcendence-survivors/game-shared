@@ -1,9 +1,17 @@
-import type { Vector3 } from '@babylonjs/core';
 import { MapSchema, Schema, type } from '@colyseus/schema';
 
 export const MAX_DT = 0.1;
-export const SPEED = 0.5;
+export const SPEED = 30;
 export const ROTATION_SPEED = 0.05;
+
+export const SUN_H = 150;
+export const ACCESS_RADIUS = 128;
+export const RAY_SPEED = 1;
+export const RAY_DIR_X = 0;
+export const RAY_DIR_Z = 1;
+
+export const TICK_RATE = 60;
+export const FIXED_DT = 1 / TICK_RATE;
 
 export interface Vec3d {
 	x: number;
@@ -30,12 +38,6 @@ export interface MovementState {
 	rotationY: number;
 	z: number;
 }
-
-export const SUN_H = 150;
-export const ACCESS_RADIUS = 128;
-export const RAY_SPEED = 1;
-export const RAY_DIR_X = 0;
-export const RAY_DIR_Z = 1;
 
 export class Player extends Schema {
 	@type('number') x: number = 0;
@@ -98,8 +100,9 @@ export function applyMovement(
 			moveX /= len;
 			moveZ /= len;
 
-			x += moveX * SPEED;
-			z += moveZ * SPEED;
+			const dt = Math.min(input.deltaTime, MAX_DT);
+			x += moveX * SPEED * dt;
+			z += moveZ * SPEED * dt;
 			rotationY = Math.atan2(moveX, moveZ);
 		}
 	}

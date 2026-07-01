@@ -11,6 +11,7 @@ export {
 	ACCESS_RADIUS,
 	SUN_H,
 	clampToRadius,
+	TICK_RATE,
 } from './states/GameState';
 export type {
 	Vec3d,
