@@ -22,6 +22,7 @@ export interface MoveInput {
 	right: boolean;
 	left: boolean;
 	deltaTime: number;
+	cameraYaw: number;
 }
 
 export interface MovementState {
