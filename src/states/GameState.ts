@@ -1,8 +1,12 @@
+import * as BABYLON from '@babylonjs/core';
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import type { World } from '../world/World';
 
 export const MAX_DT = 0.1;
 export const SPEED = 30;
 export const ROTATION_SPEED = 0.05;
+export const GRAVITY = 60;
+export const JUMP_SPEED = 22;
 
 export const SUN_H = 150;
 export const ACCESS_RADIUS = 128;
@@ -29,14 +33,18 @@ export interface MoveInput {
 	backward: boolean;
 	right: boolean;
 	left: boolean;
+	jump: boolean;
 	deltaTime: number;
 	cameraYaw: number;
 }
 
 export interface MovementState {
 	x: number;
+	y: number;
 	rotationY: number;
 	z: number;
+	velocityY: number;
+	isGrounded: boolean;
 }
 
 export class Player extends Schema {
@@ -44,6 +52,8 @@ export class Player extends Schema {
 	@type('number') y: number = 0;
 	@type('number') z: number = 0;
 	@type('number') rotationY: number = 0;
+	@type('number') velocityY: number = 0;
+	@type('boolean') isGrounded: boolean = true;
 	@type('number') lastProcessedSeq: number = 0;
 	@type('string') animState: 'idle' | 'moving' = 'idle';
 }
@@ -60,17 +70,17 @@ export function getForwardVector(rotationY: number): Vec2d {
 	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };
 }
 
-export function getCameraYaw(cameraForward) {
+export function getCameraYaw(cameraForward: BABYLON.Vector3) {
 	cameraForward.y = 0;
 	cameraForward.normalize();
 	return Math.atan2(cameraForward.x, cameraForward.z);
 }
 
-export function applyMovement(
+export function applyHorizontalMovement(
 	state: MovementState,
 	input: MoveInput,
 	cameraYaw: number,
-): MovementState {
+): { x: number; z: number; rotationY: number } {
 	let { x, z, rotationY } = state;
 	const hasMoveInput =
 		input.forward || input.backward || input.left || input.right;
@@ -107,8 +117,31 @@ export function applyMovement(
 			rotationY = Math.atan2(moveX, moveZ);
 		}
 	}
-
 	return { x, z, rotationY };
+}
+
+export function applyVerticalMovement(
+	y: number,
+	velocityY: number,
+	isGrounded: boolean,
+	groundHeight: number,
+	input: MoveInput,
+): { y: number; velocityY: number; isGrounded: boolean } {
+	const dt = Math.min(input.deltaTime, MAX_DT);
+	if (isGrounded && input.jump) {
+		velocityY = JUMP_SPEED;
+		isGrounded = false;
+	}
+	if (!isGrounded) {
+		velocityY -= GRAVITY * dt;
+	}
+	y += velocityY * dt;
+	if (y <= groundHeight) {
+		y = groundHeight;
+		velocityY = 0;
+		isGrounded = true;
+	} else if (isGrounded && y > groundHeight + 0.01) isGrounded = false;
+	return { y, velocityY, isGrounded };
 }
 
 export function clampToRadius(

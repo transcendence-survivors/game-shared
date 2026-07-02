@@ -4,7 +4,8 @@ export {
 	getForwardVector,
 	MAX_DT,
 	SPEED,
-	applyMovement,
+	applyHorizontalMovement,
+	applyVerticalMovement,
 	RAY_DIR_X,
 	RAY_DIR_Z,
 	RAY_SPEED,
@@ -21,3 +22,4 @@ export type {
 } from './states/GameState';
 
 export { World } from './world/World';
+export { resolveTerrainCollision } from './CollisionCheck';
