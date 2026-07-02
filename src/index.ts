@@ -19,3 +19,5 @@ export type {
 	MovementState,
 	Vec2d,
 } from './states/GameState';
+
+export { World } from './world/World';

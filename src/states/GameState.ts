@@ -53,6 +53,7 @@ export class GameState extends Schema {
 	@type('number') rayX: number = 0;
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;
+	@type('number') seed: number = 0;
 }
 
 export function getForwardVector(rotationY: number): Vec2d {
