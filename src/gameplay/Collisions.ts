@@ -1,4 +1,4 @@
-import type { World } from './world/World';
+import type { World } from '../world/World';
 
 function cellOf(world: World, x: number, z: number) {
 	return {

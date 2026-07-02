@@ -1,72 +1,8 @@
 import * as BABYLON from '@babylonjs/core';
-import { MapSchema, Schema, type } from '@colyseus/schema';
-import type { World } from '../world/World';
+import { type MovementState, type MoveInput, type Vec2d } from '../utils/Types';
+import { SPEED, JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
 
-export const MAX_DT = 0.1;
-export const SPEED = 30;
-export const ROTATION_SPEED = 0.05;
-export const GRAVITY = 60;
-export const JUMP_SPEED = 22;
-
-export const SUN_H = 150;
-export const ACCESS_RADIUS = 128;
-export const RAY_SPEED = 1;
-export const RAY_DIR_X = 0;
-export const RAY_DIR_Z = 1;
-
-export const TICK_RATE = 60;
-export const FIXED_DT = 1 / TICK_RATE;
-
-export interface Vec3d {
-	x: number;
-	y: number;
-	z: number;
-}
-export interface Vec2d {
-	x: number;
-	z: number;
-}
-
-export interface MoveInput {
-	seq: number;
-	forward: boolean;
-	backward: boolean;
-	right: boolean;
-	left: boolean;
-	jump: boolean;
-	deltaTime: number;
-	cameraYaw: number;
-}
-
-export interface MovementState {
-	x: number;
-	y: number;
-	rotationY: number;
-	z: number;
-	velocityY: number;
-	isGrounded: boolean;
-}
-
-export class Player extends Schema {
-	@type('number') x: number = 0;
-	@type('number') y: number = 0;
-	@type('number') z: number = 0;
-	@type('number') rotationY: number = 0;
-	@type('number') velocityY: number = 0;
-	@type('boolean') isGrounded: boolean = true;
-	@type('number') lastProcessedSeq: number = 0;
-	@type('string') animState: 'idle' | 'moving' = 'idle';
-}
-
-export class GameState extends Schema {
-	@type({ map: Player }) players = new MapSchema<Player>();
-	@type('number') rayX: number = 0;
-	@type('number') rayY: number = 0;
-	@type('number') rayZ: number = 0;
-	@type('number') seed: number = 0;
-}
-
-export function getForwardVector(rotationY: number): Vec2d {
+function getForwardVector(rotationY: number): Vec2d {
 	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };
 }
 
