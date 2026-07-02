@@ -24,6 +24,7 @@ export {
 	RAY_DIR_Z,
 	TICK_RATE,
 	FIXED_DT,
+	PLAYER_HB_RADIUS,
 } from './utils/Constants';
 
 export { World } from './world/World';

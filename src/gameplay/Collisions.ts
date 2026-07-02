@@ -1,3 +1,4 @@
+import { PLAYER_HB_RADIUS } from '../utils/Constants';
 import type { World } from '../world/World';
 
 function cellOf(world: World, x: number, z: number) {
@@ -30,6 +31,40 @@ function isCellTransitionWalkable(
 	return false;
 }
 
+function isPositionWalkable(
+	world: World,
+	fromCellX: number,
+	fromCellZ: number,
+	x: number,
+	z: number,
+	playerY: number,
+) {
+	const offsets = [
+		[0, 0],
+		[PLAYER_HB_RADIUS, 0],
+		[-PLAYER_HB_RADIUS, 0],
+		[0, PLAYER_HB_RADIUS],
+		[0, -PLAYER_HB_RADIUS],
+	];
+
+	for (const [dx, dz] of offsets) {
+		const sample = cellOf(world, x + dx, z + dz);
+		if (
+			!isCellTransitionWalkable(
+				world,
+				fromCellX,
+				fromCellZ,
+				sample.cellX,
+				sample.cellZ,
+				playerY,
+			)
+		) {
+			return false;
+		}
+	}
+	return true;
+}
+
 export function resolveTerrainCollision(
 	world: World,
 	currentPos: { x: number; z: number },
@@ -38,40 +73,37 @@ export function resolveTerrainCollision(
 ) {
 	const from = cellOf(world, currentPos.x, currentPos.z);
 
-	const toFull = cellOf(world, targetPos.x, targetPos.z);
 	if (
-		isCellTransitionWalkable(
+		isPositionWalkable(
 			world,
 			from.cellX,
 			from.cellZ,
-			toFull.cellX,
-			toFull.cellZ,
+			targetPos.x,
+			targetPos.z,
 			playerY,
 		)
 	)
 		return { x: targetPos.x, z: targetPos.z };
 
-	const toX = cellOf(world, targetPos.x, currentPos.z);
 	if (
-		isCellTransitionWalkable(
+		isPositionWalkable(
 			world,
 			from.cellX,
 			from.cellZ,
-			toX.cellX,
-			toX.cellZ,
+			targetPos.x,
+			currentPos.z,
 			playerY,
 		)
 	)
 		return { x: targetPos.x, z: currentPos.z };
 
-	const toZ = cellOf(world, currentPos.x, targetPos.z);
 	if (
-		isCellTransitionWalkable(
+		isPositionWalkable(
 			world,
 			from.cellX,
 			from.cellZ,
-			toZ.cellX,
-			toZ.cellZ,
+			currentPos.x,
+			targetPos.z,
 			playerY,
 		)
 	)

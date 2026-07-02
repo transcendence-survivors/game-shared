@@ -4,6 +4,7 @@ export const SPEED = 30;
 export const ROTATION_SPEED = 0.05;
 export const GRAVITY = 60;
 export const JUMP_SPEED = 22;
+export const PLAYER_HB_RADIUS = 0.6;
 
 // Light beam
 export const SUN_H = 150;
