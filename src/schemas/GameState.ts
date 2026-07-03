@@ -9,6 +9,8 @@ export class Player extends Schema {
 	@type('boolean') isGrounded: boolean = true;
 	@type('number') lastProcessedSeq: number = 0;
 	@type('string') animState: 'idle' | 'moving' = 'idle';
+	// @type('number') health: number = 100;
+	// @type('number') xp: number = 0;
 }
 
 export class GameState extends Schema {

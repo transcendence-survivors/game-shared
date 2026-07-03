@@ -39,3 +39,11 @@ export interface VerticalMove {
 	velocityY: number;
 	isGrounded: boolean;
 }
+
+export interface PlayerStats {
+	health: number;
+	attackSpeed: number;
+	moveSpeed: number;
+	attackDamage: number;
+	armor: number;
+}
