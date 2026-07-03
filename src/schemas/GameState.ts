@@ -11,6 +11,7 @@ export class Player extends Schema {
 	@type('string') animState: 'idle' | 'moving' = 'idle';
 	// @type('number') health: number = 100;
 	// @type('number') xp: number = 0;
+	// @type('number') maxHealth: number = 100;
 }
 
 export class GameState extends Schema {
