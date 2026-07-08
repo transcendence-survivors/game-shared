@@ -2,14 +2,23 @@ export type {
 	Vec3d,
 	Vec2d,
 	MoveInput,
+	AttackInput,
 	MovementState,
 	VerticalMove,
 	HorizontalMove,
+	MonsterKind,
+	BossKind,
+	StatMultipliers,
+	MonsterStats,
 } from './utils/Types';
 
 export { resolveTerrainCollision } from './gameplay/Collisions';
 
-export { Player, GameState } from './schemas/GameState';
+export { Player, Monster, GameState } from './schemas/GameState';
+
+export { Life } from './schemas/Life';
+
+export { Experience, xpRequiredForLevel } from './schemas/Experience';
 
 export {
 	MAX_DT,
@@ -25,6 +34,27 @@ export {
 	TICK_RATE,
 	FIXED_DT,
 	PLAYER_HB_RADIUS,
+	PLAYER_ATTACK_DAMAGE,
+	PLAYER_MAX_LIFE,
+	XP_BASE_TO_LEVEL,
+	XP_LEVEL_GROWTH,
+	MONSTER_KINDS,
+	BOSS_KINDS,
+	MONSTER_BASE_LIFE,
+	MONSTER_BASE_DAMAGE,
+	MONSTER_BASE_XP_REWARD,
+	STAT_BUDGET,
+	MIN_STAT_MULTIPLIER,
+	BOSS_STAT_SCALE,
+	DIFFICULTY_GROWTH_PER_MINUTE,
+	ACTIVE_MONSTER_KIND_COUNT,
+	MONSTER_ROTATION_INTERVAL_S,
+	MONSTER_BOOST_INTERVAL_S,
+	MONSTER_BASE_POPULATION,
+	MONSTER_POPULATION_PER_MINUTE,
+	MONSTER_MAX_POPULATION,
+	MONSTER_SPAWN_MIN_DIST,
+	MONSTER_SPAWN_MAX_DIST,
 } from './utils/Constants';
 
 export { World } from './world/World';
@@ -35,3 +65,11 @@ export {
 	getCameraYaw,
 	clampToRadius,
 } from './gameplay/Movements';
+
+export {
+	difficultyFactor,
+	splitStatBudget,
+	computeMonsterStats,
+	targetPopulation,
+	pickDistinct,
+} from './gameplay/Difficulty';

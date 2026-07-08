@@ -1,3 +1,5 @@
+import { BOSS_KINDS, MONSTER_KINDS } from './Constants';
+
 export interface Vec3d {
 	x: number;
 	y: number;
@@ -17,6 +19,25 @@ export interface MoveInput {
 	jump: boolean;
 	deltaTime: number;
 	cameraYaw: number;
+}
+
+export interface AttackInput {
+	monsterId: string;
+}
+
+export type MonsterKind = (typeof MONSTER_KINDS)[number];
+
+export type BossKind = (typeof BOSS_KINDS)[number];
+
+export interface StatMultipliers {
+	hpMultiplier: number;
+	damageMultiplier: number;
+}
+
+export interface MonsterStats {
+	maxLife: number;
+	damage: number;
+	xpReward: number;
 }
 
 export interface MovementState {
