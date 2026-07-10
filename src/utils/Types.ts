@@ -27,6 +27,8 @@ export interface AttackInput {
 
 export type MonsterKind = (typeof MONSTER_KINDS)[number];
 
+export type MonsterAnimState = 'idle' | 'walk' | 'attack';
+
 export type BossKind = (typeof BOSS_KINDS)[number];
 
 export interface StatMultipliers {

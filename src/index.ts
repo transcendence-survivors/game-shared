@@ -7,6 +7,7 @@ export type {
 	VerticalMove,
 	HorizontalMove,
 	MonsterKind,
+	MonsterAnimState,
 	BossKind,
 	StatMultipliers,
 	MonsterStats,
@@ -55,6 +56,10 @@ export {
 	MONSTER_MAX_POPULATION,
 	MONSTER_SPAWN_MIN_DIST,
 	MONSTER_SPAWN_MAX_DIST,
+	MONSTER_MOVE_SPEED,
+	MONSTER_ATTACK_RANGE,
+	BOSS_ATTACK_RANGE,
+	MONSTER_ATTACK_COOLDOWN_S,
 } from './utils/Constants';
 
 export { World } from './world/World';
@@ -73,3 +78,9 @@ export {
 	targetPopulation,
 	pickDistinct,
 } from './gameplay/Difficulty';
+
+export {
+	nearestIndex,
+	chaseStep,
+	type ChaseStep,
+} from './gameplay/MonsterAi';

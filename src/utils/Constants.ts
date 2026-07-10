@@ -25,9 +25,6 @@ export const MONSTER_KINDS = [
 	'venomweb',
 	'grunt',
 	'ravager',
-	'mawler',
-	'fangmaw',
-	'slitherer',
 	'kraklet',
 ] as const;
 export const BOSS_KINDS = [
@@ -57,6 +54,12 @@ export const MONSTER_POPULATION_PER_MINUTE = 2;
 export const MONSTER_MAX_POPULATION = 60;
 export const MONSTER_SPAWN_MIN_DIST = 20;
 export const MONSTER_SPAWN_MAX_DIST = 60;
+
+// Monster behaviour
+export const MONSTER_MOVE_SPEED = 18;
+export const MONSTER_ATTACK_RANGE = 3;
+export const BOSS_ATTACK_RANGE = 7;
+export const MONSTER_ATTACK_COOLDOWN_S = 1.2;
 
 // Server
 export const TICK_RATE = 60;

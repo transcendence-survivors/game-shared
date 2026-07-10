@@ -7,6 +7,7 @@ import {
 	MONSTER_BASE_XP_REWARD,
 	PLAYER_MAX_LIFE,
 } from '../utils/Constants';
+import { type MonsterAnimState } from '../utils/Types';
 
 export class Player extends Schema {
 	@type('number') x: number = 0;
@@ -30,11 +31,14 @@ export class Monster extends Schema {
 	@type('number') rotationY: number = 0;
 	@type('number') damage: number = MONSTER_BASE_DAMAGE;
 	@type('number') xpReward: number = MONSTER_BASE_XP_REWARD;
+	@type('string') animState: MonsterAnimState = 'idle';
 	@type(Life) life = new Life(MONSTER_BASE_LIFE);
 	// Server-side only (not synchronized): share of the 500% stat budget,
 	// re-rolled by the MonsterManager at every rotation.
 	hpMultiplier = 1;
 	damageMultiplier = 1;
+	// Server-side only: seconds left before the monster may strike again.
+	attackCooldownS = 0;
 }
 
 export class GameState extends Schema {
