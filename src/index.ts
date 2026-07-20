@@ -15,6 +15,8 @@ export type {
 
 export { resolveTerrainCollision } from './gameplay/Collisions';
 
+export { findSpawnPoint, type SpawnPoint } from './gameplay/Spawn';
+
 export { Player, Monster, GameState } from './schemas/GameState';
 
 export { Life } from './schemas/Life';
