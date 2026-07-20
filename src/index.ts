@@ -17,7 +17,7 @@ export { resolveTerrainCollision } from './gameplay/Collisions';
 
 export { findSpawnPoint, type SpawnPoint } from './gameplay/Spawn';
 
-export { Player, Monster, GameState } from './schemas/GameState';
+export { Player, Monster, GameState, Aura } from './schemas/GameState';
 
 export { Life } from './schemas/Life';
 
@@ -39,6 +39,9 @@ export {
 	PLAYER_HB_RADIUS,
 	PLAYER_ATTACK_DAMAGE,
 	PLAYER_MAX_LIFE,
+	PLAYER_AURA_RADIUS,
+	PLAYER_AURA_DAMAGE,
+	PLAYER_AURA_ATTACK_SPEED,
 	XP_BASE_TO_LEVEL,
 	XP_LEVEL_GROWTH,
 	MONSTER_KINDS,

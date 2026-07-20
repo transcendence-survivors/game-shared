@@ -16,6 +16,13 @@ export const RAY_DIR_Z = 1;
 // Life & experience
 export const PLAYER_ATTACK_DAMAGE = 10;
 export const PLAYER_MAX_LIFE = 100;
+
+// Player aura — champ de dégâts de contact autour du joueur (style Megabonk).
+// Ces valeurs ne sont que les valeurs PAR DÉFAUT : les stats vivent dans le
+// schéma `Aura` du joueur et sont donc destinées à évoluer (upgrades, niveau).
+export const PLAYER_AURA_RADIUS = 2; // portée en unités monde
+export const PLAYER_AURA_DAMAGE = 1; // dégâts infligés par attaque
+export const PLAYER_AURA_ATTACK_SPEED = 1; // attaques par seconde
 export const XP_BASE_TO_LEVEL = 100;
 export const XP_LEVEL_GROWTH = 1.2;
 
