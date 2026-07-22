@@ -3,6 +3,7 @@ export type {
 	Vec2d,
 	MoveInput,
 	AttackInput,
+	MonsterDamageEvent,
 	MovementState,
 	VerticalMove,
 	HorizontalMove,

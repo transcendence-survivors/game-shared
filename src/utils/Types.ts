@@ -25,6 +25,22 @@ export interface AttackInput {
 	monsterId: string;
 }
 
+/**
+ * Événement de dégâts subis par un monstre, diffusé par le serveur (source
+ * autoritative) pour l'affichage des nombres flottants côté client. La
+ * position est celle du monstre au moment du coup, ce qui permet d'afficher
+ * même le coup fatal alors que l'entité vient d'être retirée de l'état.
+ */
+export interface MonsterDamageEvent {
+	id: string;
+	x: number;
+	y: number;
+	z: number;
+	amount: number;
+	isBoss: boolean;
+	fatal: boolean;
+}
+
 export type MonsterKind = (typeof MONSTER_KINDS)[number];
 
 export type MonsterAnimState = 'idle' | 'walk' | 'attack';
