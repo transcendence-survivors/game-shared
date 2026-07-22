@@ -21,7 +21,7 @@ export const PLAYER_MAX_LIFE = 100;
 // Ces valeurs ne sont que les valeurs PAR DÉFAUT : les stats vivent dans le
 // schéma `Aura` du joueur et sont donc destinées à évoluer (upgrades, niveau).
 export const PLAYER_AURA_RADIUS = 6; // portée en unités monde
-export const PLAYER_AURA_DAMAGE = 1; // dégâts infligés par attaque
+export const PLAYER_AURA_DAMAGE = 5; // dégâts infligés par attaque
 export const PLAYER_AURA_ATTACK_SPEED = 1; // attaques par seconde
 export const XP_BASE_TO_LEVEL = 100;
 export const XP_LEVEL_GROWTH = 1.2;
