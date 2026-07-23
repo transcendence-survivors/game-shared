@@ -5,6 +5,10 @@ export const ROTATION_SPEED = 0.05;
 export const GRAVITY = 60;
 export const JUMP_SPEED = 22;
 export const PLAYER_HB_RADIUS = 0.6;
+// Marche que le joueur peut enjamber sans passer par une rampe. Doit rester très
+// petit devant `World.STEP` (hauteur d'un palier) : sinon on grimpe les falaises
+// et les flancs de rampe au lieu d'emprunter la pente.
+export const PLAYER_STEP_UP = 0.5;
 
 // Light beam
 export const SUN_H = 150;

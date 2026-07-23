@@ -55,6 +55,7 @@ export class World {
 	private tierCache = new Map<number, number>();
 	private dilateCache = new Map<number, number>();
 	private closeCache = new Map<number, number>();
+	private rampCache = new Map<number, readonly [number, number] | null>();
 
 	constructor(seed: number) {
 		this.seed = seed >>> 0;
@@ -148,6 +149,7 @@ export class World {
 			this.dilateCache.clear();
 			this.tierCache.clear();
 			this.rawCache.clear();
+			this.rampCache.clear();
 		}
 		const r = this.fillR;
 		let m = Infinity;
@@ -201,6 +203,18 @@ export class World {
 
 	/** Pente FINALE : retire les pentes adjacentes de sens différent. */
 	rampDir(gx: number, gz: number): readonly [number, number] | null {
+		const k = keyOf(gx, gz);
+		const cached = this.rampCache.get(k);
+		if (cached !== undefined) return cached;
+		const d = this.computeRampDir(gx, gz);
+		this.rampCache.set(k, d);
+		return d;
+	}
+
+	private computeRampDir(
+		gx: number,
+		gz: number,
+	): readonly [number, number] | null {
 		const d = this.slopeCandidate(gx, gz);
 		if (!d) return null;
 		const h = this.hash(gx, gz);
