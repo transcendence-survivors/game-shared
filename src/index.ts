@@ -86,8 +86,4 @@ export {
 	pickDistinct,
 } from './gameplay/Difficulty';
 
-export {
-	nearestIndex,
-	chaseStep,
-	type ChaseStep,
-} from './gameplay/MonsterAi';
+export { nearestIndex, chaseStep, type ChaseStep } from './gameplay/MonsterAi';
