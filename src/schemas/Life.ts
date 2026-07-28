@@ -1,9 +1,5 @@
 import { Schema, type } from '@colyseus/schema';
 
-/**
- * Server-authoritative life pool shared by players and monsters.
- * All mutations clamp the current value inside [0, max].
- */
 export class Life extends Schema {
 	@type('number') max: number;
 	@type('number') current: number;
@@ -33,10 +29,6 @@ export class Life extends Schema {
 		this.current = this.max;
 	}
 
-	/**
-	 * Changes the maximum while preserving the current/max ratio,
-	 * so a difficulty boost never heals nor hurts in proportion.
-	 */
 	rescale(newMax: number) {
 		if (!Number.isFinite(newMax) || newMax <= 0) return;
 		const ratio = this.ratio();

@@ -12,16 +12,9 @@ import {
 } from '../utils/Constants';
 import { type MonsterAnimState } from '../utils/Types';
 
-/**
- * Champ de dégâts de contact autour du joueur. Les trois stats sont
- * synchronisées pour que le serveur applique les dégâts et que le client
- * les reflète (taille + cadence du rendu). Pensé pour évoluer : les upgrades
- * n'ont qu'à modifier ces champs, aucune autre couche n'est à toucher.
- */
 export class Aura extends Schema {
 	@type('number') radius: number = PLAYER_AURA_RADIUS;
 	@type('number') damage: number = PLAYER_AURA_DAMAGE;
-	// Attaques par seconde.
 	@type('number') attackSpeed: number = PLAYER_AURA_ATTACK_SPEED;
 }
 
@@ -37,8 +30,6 @@ export class Player extends Schema {
 	@type(Life) life = new Life(PLAYER_MAX_LIFE);
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();
-	// Server-side only (non synchronisé) : secondes restantes avant la
-	// prochaine pulsation de l'aura, cadencée par `aura.attackSpeed`.
 	auraCooldownS = 0;
 }
 
@@ -53,11 +44,8 @@ export class Monster extends Schema {
 	@type('number') xpReward: number = MONSTER_BASE_XP_REWARD;
 	@type('string') animState: MonsterAnimState = 'idle';
 	@type(Life) life = new Life(MONSTER_BASE_LIFE);
-	// Server-side only (not synchronized): share of the 500% stat budget,
-	// re-rolled by the MonsterManager at every rotation.
 	hpMultiplier = 1;
 	damageMultiplier = 1;
-	// Server-side only: seconds left before the monster may strike again.
 	attackCooldownS = 0;
 }
 
