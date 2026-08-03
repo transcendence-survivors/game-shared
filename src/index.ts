@@ -24,6 +24,8 @@ export { Life } from './schemas/Life';
 
 export { Experience, xpRequiredForLevel } from './schemas/Experience';
 
+export { rollUpgradeOptions } from './gameplay/RollUpgrades';
+
 export {
 	MAX_DT,
 	SPEED,

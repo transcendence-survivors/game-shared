@@ -56,8 +56,8 @@ export const MONSTER_SPAWN_MIN_DIST = 20;
 export const MONSTER_SPAWN_MAX_DIST = 60;
 
 export const MONSTER_MOVE_SPEED = 18;
-export const MONSTER_ATTACK_RANGE = 3;
-export const BOSS_ATTACK_RANGE = 7;
+export const MONSTER_ATTACK_RANGE = 1;
+export const BOSS_ATTACK_RANGE = 3;
 export const MONSTER_ATTACK_COOLDOWN_S = 1.2;
 
 export const TICK_RATE = 60;

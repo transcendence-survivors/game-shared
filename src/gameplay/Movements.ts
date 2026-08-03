@@ -16,6 +16,7 @@ export function applyHorizontalMovement(
 	state: MovementState,
 	input: MoveInput,
 	cameraYaw: number,
+	speed: number,
 ): { x: number; z: number; rotationY: number } {
 	let { x, z, rotationY } = state;
 	const hasMoveInput =
@@ -48,8 +49,8 @@ export function applyHorizontalMovement(
 			moveZ /= len;
 
 			const dt = Math.min(input.deltaTime, MAX_DT);
-			x += moveX * SPEED * dt;
-			z += moveZ * SPEED * dt;
+			x += moveX * speed * dt;
+			z += moveZ * speed * dt;
 			rotationY = Math.atan2(moveX, moveZ);
 		}
 	}

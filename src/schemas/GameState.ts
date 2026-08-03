@@ -9,6 +9,7 @@ import {
 	PLAYER_AURA_RADIUS,
 	PLAYER_AURA_DAMAGE,
 	PLAYER_AURA_ATTACK_SPEED,
+	SPEED,
 } from '../utils/Constants';
 import { type MonsterAnimState } from '../utils/Types';
 
@@ -16,6 +17,15 @@ export class Aura extends Schema {
 	@type('number') radius: number = PLAYER_AURA_RADIUS;
 	@type('number') damage: number = PLAYER_AURA_DAMAGE;
 	@type('number') attackSpeed: number = PLAYER_AURA_ATTACK_SPEED;
+}
+
+export class PlayerStats extends Schema {
+	@type('number') attackSpeed: number = 1;
+	@type('number') moveSpeed: number = SPEED;
+	@type('number') attackDamage: number = 100;
+	@type('number') armor: number = 1;
+	@type('number') luck: number = 1;
+	@type('number') killAmount: number = 0;
 }
 
 export class Player extends Schema {
@@ -27,6 +37,7 @@ export class Player extends Schema {
 	@type('boolean') isGrounded: boolean = true;
 	@type('number') lastProcessedSeq: number = 0;
 	@type('string') animState: 'idle' | 'moving' = 'idle';
+	@type(PlayerStats) stats = new PlayerStats();
 	@type(Life) life = new Life(PLAYER_MAX_LIFE);
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();

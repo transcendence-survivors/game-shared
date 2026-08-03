@@ -79,4 +79,13 @@ export interface PlayerStats {
 	moveSpeed: number;
 	attackDamage: number;
 	armor: number;
+	luck: number;
+	killAmount: number;
+}
+
+export interface UpgradeOption {
+	id: string;
+	name: string;
+	description: string;
+	iconUrl: string;
 }

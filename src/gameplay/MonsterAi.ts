@@ -7,7 +7,6 @@ export interface ChaseStep {
 	inRange: boolean;
 }
 
-/** Index of the point closest to `from`, or -1 when `points` is empty. */
 export function nearestIndex(from: Vec2d, points: readonly Vec2d[]): number {
 	let best = -1;
 	let bestDistSq = Infinity;
@@ -23,11 +22,6 @@ export function nearestIndex(from: Vec2d, points: readonly Vec2d[]): number {
 	return best;
 }
 
-/**
- * Advances one step of `speed * dtSeconds` from `from` toward `target`,
- * never moving closer than `stopDistance`. The step always faces the
- * target; `inRange` is true once `from` is within `stopDistance`.
- */
 export function chaseStep(
 	from: Vec2d,
 	target: Vec2d,
