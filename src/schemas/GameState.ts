@@ -26,6 +26,8 @@ export class PlayerStats extends Schema {
 	@type('number') armor: number = 1;
 	@type('number') luck: number = 1;
 	@type('number') killAmount: number = 0;
+	@type('number') lifesteal: number = 1;
+	@type('number') range: number = 8;
 }
 
 export class Player extends Schema {

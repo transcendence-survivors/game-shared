@@ -14,7 +14,7 @@ export const UPGRADE_POOL: UpgradeDef[] = [
 		name: 'SUUUUUU',
 		description: '+10% damage',
 		apply: (player) => {
-			player.stats.attackDamage += 0.1;
+			player.stats.attackDamage *= 1.1;
 		},
 	},
 	{
@@ -31,6 +31,22 @@ export const UPGRADE_POOL: UpgradeDef[] = [
 		description: '+10% move speed',
 		apply: (player) => {
 			player.stats.moveSpeed *= 1.1;
+		},
+	},
+	{
+		id: 'lifesteal_up',
+		name: 'DRACULA',
+		description: '+2% lifesteal',
+		apply: (player) => {
+			player.stats.lifesteal *= 1.2;
+		},
+	},
+	{
+		id: 'range_up',
+		name: 'LEEEROY',
+		description: '+2 range',
+		apply: (player) => {
+			player.stats.range += 2;
 		},
 	},
 ];
