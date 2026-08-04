@@ -20,6 +20,7 @@ export class Aura extends Schema {
 }
 
 export class PlayerStats extends Schema {
+	@type('number') maxHealth: number = 100;
 	@type('number') attackSpeed: number = 1;
 	@type('number') moveSpeed: number = SPEED;
 	@type('number') attackDamage: number = 100;

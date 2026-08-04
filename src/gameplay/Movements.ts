@@ -95,3 +95,14 @@ export function clampToRadius(
 	const k = radius / dist;
 	return { x: cx + dx * k, z: cz + dz * k };
 }
+
+export function isInsideRay(
+	px: number,
+	pz: number,
+	rayCenter: { x: number; z: number },
+	radius: number,
+): boolean {
+	const dx = px - rayCenter.x;
+	const dz = pz - rayCenter.z;
+	return dx * dx + dz * dz <= radius * radius;
+}
