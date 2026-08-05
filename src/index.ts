@@ -4,6 +4,7 @@ export type {
 	MoveInput,
 	AttackInput,
 	MonsterDamageEvent,
+	CombatImpactEvent,
 	MovementState,
 	VerticalMove,
 	HorizontalMove,
@@ -12,13 +13,34 @@ export type {
 	BossKind,
 	StatMultipliers,
 	MonsterStats,
+	WeaponKind,
+	CombatEntityKind,
+	CombatEntityPhase,
+	SelectUpgradeInput,
+	WorldSeedMessage,
+	GameOverMessage,
+	UpgradeOption,
 } from './utils/Types';
 
 export { resolveTerrainCollision } from './gameplay/Collisions';
 
 export { findSpawnPoint, type SpawnPoint } from './gameplay/Spawn';
 
-export { Player, Monster, GameState, Aura } from './schemas/GameState';
+export {
+	Player,
+	Monster,
+	GameState,
+	Aura,
+	WeaponState,
+	CombatEntity,
+} from './schemas/GameState';
+
+export {
+	ClientMessage,
+	ServerMessage,
+	type ClientMessageName,
+	type ServerMessageName,
+} from './protocol';
 
 export { Life } from './schemas/Life';
 
@@ -46,6 +68,9 @@ export {
 	PLAYER_AURA_RADIUS,
 	PLAYER_AURA_DAMAGE,
 	PLAYER_AURA_ATTACK_SPEED,
+	WEAPON_KINDS,
+	COMBAT_ENTITY_KINDS,
+	COMBAT_ENTITY_PHASES,
 	XP_BASE_TO_LEVEL,
 	XP_LEVEL_GROWTH,
 	MONSTER_KINDS,
@@ -90,3 +115,14 @@ export {
 } from './gameplay/Difficulty';
 
 export { nearestIndex, chaseStep, type ChaseStep } from './gameplay/MonsterAi';
+
+export {
+	distanceSquared,
+	normalizeAngle,
+	rotateVector,
+	forwardVector,
+	isPointInCircle,
+	isCircleInSector,
+	distanceSquaredToSegment,
+	doesMovingCircleHitCircle,
+} from './gameplay/CombatGeometry';

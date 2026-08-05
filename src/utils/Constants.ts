@@ -20,6 +20,19 @@ export const PLAYER_MAX_LIFE = 100;
 export const PLAYER_AURA_RADIUS = 24; // TODO 6
 export const PLAYER_AURA_DAMAGE = 100; // TODO 5
 export const PLAYER_AURA_ATTACK_SPEED = 1;
+export const WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff', 'bow'] as const;
+export const COMBAT_ENTITY_KINDS = [
+	'sword-slash',
+	'axe',
+	'fireball',
+	'arrow',
+] as const;
+export const COMBAT_ENTITY_PHASES = [
+	'spawned',
+	'flying',
+	'active',
+	'expiring',
+] as const;
 export const XP_BASE_TO_LEVEL = 25; // TODO 100
 export const XP_LEVEL_GROWTH = 1.2;
 

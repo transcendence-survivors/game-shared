@@ -2,7 +2,7 @@ import type { Player } from '../schemas/GameState';
 import { UPGRADE_POOL, type UpgradeDef } from '../utils/Upgrades';
 
 export function rollUpgradeOptions(
-	player: Player,
+	_player: Player,
 	count: number = 3,
 ): UpgradeDef[] {
 	const pool = UPGRADE_POOL;

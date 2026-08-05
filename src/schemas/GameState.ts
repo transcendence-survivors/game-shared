@@ -2,6 +2,7 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import { Life } from './Life';
 import { Experience } from './Experience';
 import {
+	COMBAT_ENTITY_PHASES,
 	MONSTER_BASE_DAMAGE,
 	MONSTER_BASE_LIFE,
 	MONSTER_BASE_XP_REWARD,
@@ -10,8 +11,40 @@ import {
 	PLAYER_AURA_DAMAGE,
 	PLAYER_AURA_ATTACK_SPEED,
 	SPEED,
+	WEAPON_KINDS,
 } from '../utils/Constants';
-import { type MonsterAnimState } from '../utils/Types';
+import {
+	type CombatEntityKind,
+	type CombatEntityPhase,
+	type MonsterAnimState,
+	type WeaponKind,
+} from '../utils/Types';
+
+export class WeaponState extends Schema {
+	@type('string') kind: WeaponKind = WEAPON_KINDS[0];
+	@type('number') level: number = 1;
+	@type('number') activationSequence: number = 0;
+}
+
+export class CombatEntity extends Schema {
+	@type('string') id: string = '';
+	@type('string') kind: CombatEntityKind = 'sword-slash';
+	@type('string') weaponKind: WeaponKind = WEAPON_KINDS[0];
+	@type('string') ownerSessionId: string = '';
+	@type('string') targetId: string = '';
+	@type('number') x: number = 0;
+	@type('number') y: number = 0;
+	@type('number') z: number = 0;
+	@type('number') directionX: number = 0;
+	@type('number') directionY: number = 0;
+	@type('number') directionZ: number = 0;
+	@type('number') rotationY: number = 0;
+	@type('number') scale: number = 1;
+	@type('string') phase: CombatEntityPhase = COMBAT_ENTITY_PHASES[0];
+	@type('number') spawnSequence: number = 0;
+	@type('number') createdAtS: number = 0;
+	@type('number') expiresAtS: number = 0;
+}
 
 export class Aura extends Schema {
 	@type('number') radius: number = PLAYER_AURA_RADIUS;
@@ -44,6 +77,7 @@ export class Player extends Schema {
 	@type(Life) life = new Life(PLAYER_MAX_LIFE);
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();
+	@type({ map: WeaponState }) weapons = new MapSchema<WeaponState>();
 	auraCooldownS = 0;
 }
 
@@ -66,6 +100,8 @@ export class Monster extends Schema {
 export class GameState extends Schema {
 	@type({ map: Player }) players = new MapSchema<Player>();
 	@type({ map: Monster }) monsters = new MapSchema<Monster>();
+	@type({ map: CombatEntity }) combatEntities =
+		new MapSchema<CombatEntity>();
 	@type('number') rayX: number = 0;
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;

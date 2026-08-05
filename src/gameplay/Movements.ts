@@ -1,6 +1,6 @@
 import * as BABYLON from '@babylonjs/core';
 import { type MovementState, type MoveInput, type Vec2d } from '../utils/Types';
-import { SPEED, JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
+import { JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
 
 function getForwardVector(rotationY: number): Vec2d {
 	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };

@@ -1,4 +1,10 @@
-import { BOSS_KINDS, MONSTER_KINDS } from './Constants';
+import {
+	BOSS_KINDS,
+	COMBAT_ENTITY_KINDS,
+	COMBAT_ENTITY_PHASES,
+	MONSTER_KINDS,
+	WEAPON_KINDS,
+} from './Constants';
 
 export interface Vec3d {
 	x: number;
@@ -25,6 +31,12 @@ export interface AttackInput {
 	monsterId: string;
 }
 
+export type WeaponKind = (typeof WEAPON_KINDS)[number];
+
+export type CombatEntityKind = (typeof COMBAT_ENTITY_KINDS)[number];
+
+export type CombatEntityPhase = (typeof COMBAT_ENTITY_PHASES)[number];
+
 export interface MonsterDamageEvent {
 	id: string;
 	x: number;
@@ -33,6 +45,27 @@ export interface MonsterDamageEvent {
 	amount: number;
 	isBoss: boolean;
 	fatal: boolean;
+	sourcePlayerId?: string;
+	weaponKind?: WeaponKind;
+	combatEntityId?: string;
+}
+
+export interface CombatImpactEvent extends MonsterDamageEvent {
+	sourcePlayerId: string;
+	weaponKind: WeaponKind;
+	combatEntityId: string;
+}
+
+export interface SelectUpgradeInput {
+	id: string;
+}
+
+export interface WorldSeedMessage {
+	seed: number;
+}
+
+export interface GameOverMessage {
+	playerId: string;
 }
 
 export type MonsterKind = (typeof MONSTER_KINDS)[number];
