@@ -49,7 +49,7 @@ export const UPGRADE_POOL: UpgradeDef[] = [
 		description: '+2% lifesteal',
 		iconUrl: 'lifesteal',
 		apply: (player) => {
-			player.stats.lifesteal *= 1.02;
+			player.stats.lifesteal += 2;
 		},
 	},
 	{

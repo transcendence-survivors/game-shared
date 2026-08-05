@@ -27,7 +27,7 @@ export class PlayerStats extends Schema {
 	@type('number') armor: number = 1;
 	@type('number') luck: number = 1;
 	@type('number') killAmount: number = 0;
-	@type('number') lifesteal: number = 1;
+	@type('number') lifesteal: number = 0;
 	@type('number') range: number = 8;
 }
 
@@ -45,6 +45,7 @@ export class Player extends Schema {
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();
 	auraCooldownS = 0;
+	@type('boolean') insideRay: boolean = true;
 }
 
 export class Monster extends Schema {
