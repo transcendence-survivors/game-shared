@@ -126,3 +126,27 @@ export {
 	distanceSquaredToSegment,
 	doesMovingCircleHitCircle,
 } from './gameplay/CombatGeometry';
+
+export type {
+	WeaponLevelScaling,
+	BaseWeaponConfig,
+	AuraWeaponConfig,
+	SwordWeaponConfig,
+	AxeWeaponConfig,
+	StaffWeaponConfig,
+	BowWeaponConfig,
+	WeaponConfig,
+	CombatLimits,
+} from './combat/WeaponConfig';
+
+export {
+	COMBAT_CONFIG_VERSION,
+	DEFAULT_WEAPON_LEVEL_SCALING,
+	COMBAT_LIMITS,
+	WEAPON_CONFIGS,
+} from './combat/WeaponConfigs';
+
+export {
+	WeaponConfigRegistry,
+	weaponConfigRegistry,
+} from './combat/WeaponConfigRegistry';
