@@ -81,21 +81,6 @@ export function applyVerticalMovement(
 	return { y, velocityY, isGrounded };
 }
 
-export function clampToRadius(
-	px: number,
-	pz: number,
-	cx: number,
-	cz: number,
-	radius: number,
-): { x: number; z: number } {
-	const dx = px - cx,
-		dz = pz - cz;
-	const dist = Math.hypot(dx, dz);
-	if (dist <= radius) return { x: px, z: pz };
-	const k = radius / dist;
-	return { x: cx + dx * k, z: cz + dz * k };
-}
-
 export function isInsideRay(
 	px: number,
 	pz: number,

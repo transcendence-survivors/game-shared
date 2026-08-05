@@ -1,15 +1,15 @@
 import { PLAYER_HB_RADIUS, PLAYER_STEP_UP } from '../utils/Constants';
 import type { World } from '../world/World';
 
-/** Tolérance verticale : le joueur est considéré « au niveau » du sol. */
 const GROUND_EPS = 0.1;
-/** Retrait utilisé pour sonder le sol de part et d'autre d'une frontière. */
 const PROBE = 0.01;
 
 function cellOf(world: World, x: number, z: number) {
+	const sx = Math.round(x * 1000) / 1000;
+	const sz = Math.round(z * 1000) / 1000;
 	return {
-		cellX: Math.floor(x / world.CELL),
-		cellZ: Math.floor(z / world.CELL),
+		cellX: Math.floor(sx / world.CELL),
+		cellZ: Math.floor(sz / world.CELL),
 	};
 }
 
@@ -17,7 +17,6 @@ function clamp(v: number, min: number, max: number): number {
 	return v < min ? min : v > max ? max : v;
 }
 
-/** Point de la cellule (cellX, cellZ) le plus proche de (x, z), bords exclus. */
 function clampToCell(
 	world: World,
 	cellX: number,
@@ -32,17 +31,6 @@ function clampToCell(
 	};
 }
 
-/**
- * Hauteur de la marche à franchir pour passer de la cellule de départ à la
- * cellule visée, mesurée AU RAS de la frontière traversée (et non au point
- * d'arrivée, qui peut être loin dans la case).
- *
- * Une rampe est continue avec ses deux cases voisines dans le sens de la pente
- * (marche ~ 0), alors qu'une falaise — ou le FLANC d'une rampe, qui est bien un
- * mur de terre à l'écran — présente une vraie marche. Comparer les paliers ne
- * suffit pas : une case-rampe porte le palier du bas alors que son sol monte
- * jusqu'au palier du dessus.
- */
 function stepHeight(
 	world: World,
 	fromCellX: number,
@@ -67,9 +55,8 @@ function isSampleWalkable(
 ) {
 	const to = cellOf(world, x, z);
 	if (to.cellX === fromCellX && to.cellZ === fromCellZ) return true;
-	// Déjà au-dessus du sol visé : descente, plain-pied ou saut par-dessus.
-	if (playerY >= world.height(x, z) - GROUND_EPS) return true;
-	// Sinon on ne monte que par une transition continue : la rampe, jamais ses côtés.
+	if (playerY >= groundHeightUnderHitbox(world, x, z) - GROUND_EPS)
+		return true;
 	return (
 		stepHeight(world, fromCellX, fromCellZ, to.cellX, to.cellZ, x, z) <=
 		PLAYER_STEP_UP
@@ -84,12 +71,16 @@ function isPositionWalkable(
 	z: number,
 	playerY: number,
 ) {
-	const offsets = [
+	const offsets: Array<[number, number]> = [
 		[0, 0],
 		[PLAYER_HB_RADIUS, 0],
 		[-PLAYER_HB_RADIUS, 0],
 		[0, PLAYER_HB_RADIUS],
 		[0, -PLAYER_HB_RADIUS],
+		[PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
+		[-PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
+		[PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
+		[-PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
 	];
 
 	for (const [dx, dz] of offsets) {
@@ -154,4 +145,24 @@ export function resolveTerrainCollision(
 		return { x: currentPos.x, z: targetPos.z };
 
 	return { x: currentPos.x, z: currentPos.z };
+}
+
+export function groundHeightUnderHitbox(world: World, x: number, z: number) {
+	const offsets: Array<[number, number]> = [
+		[0, 0],
+		[PLAYER_HB_RADIUS, 0],
+		[-PLAYER_HB_RADIUS, 0],
+		[0, PLAYER_HB_RADIUS],
+		[0, -PLAYER_HB_RADIUS],
+		[PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
+		[-PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
+		[PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
+		[-PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
+	];
+	let maxH = -Infinity;
+	for (const [dx, dz] of offsets) {
+		const h = world.height(x + dx, z + dz);
+		if (h > maxH) maxH = h;
+	}
+	return maxH;
 }

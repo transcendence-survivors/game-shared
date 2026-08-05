@@ -6,7 +6,6 @@ export interface WorldColor {
 	b: number;
 }
 
-/** Voisins orthogonaux (alloués une seule fois). */
 const DIRS: ReadonlyArray<readonly [number, number]> = [
 	[1, 0],
 	[-1, 0],
@@ -14,7 +13,6 @@ const DIRS: ReadonlyArray<readonly [number, number]> = [
 	[0, -1],
 ];
 
-/** Clé entière de cache (sans collision pour |coord| < 8.4M). */
 function keyOf(gx: number, gz: number): number {
 	return (gx + 0x800000) * 0x1000000 + (gz + 0x800000);
 }
@@ -31,12 +29,6 @@ function mixC(a: WorldColor, b: WorldColor, t: number): WorldColor {
 	return { r: lerp(a.r, b.r, t), g: lerp(a.g, b.g, t), b: lerp(a.b, b.b, t) };
 }
 
-/**
- * Monde procédural : paliers CLAMPÉS (écart voisins <= 1 garanti => falaises
- * d'un seul palier, donc une pente unique relie toujours deux niveaux). Les
- * rampes sont parcimonieuses mais densifiées pour que tous les niveaux restent
- * reliés. Portage fidèle du prototype `data.html`.
- */
 export class World {
 	readonly seed: number;
 	readonly CELL = 12;
@@ -47,9 +39,9 @@ export class World {
 	private noise: Noise2D;
 	private scaleDiv = 22;
 	private octaves = 4;
-	private contrast = 1.5; // pousse le relief vers les extrêmes
-	private rampChance = 40; // % des liaisons valides converties en pente
-	private fillR = 3; // rayon de fermeture morpho (rebouche les cuvettes)
+	private contrast = 1.5;
+	private rampChance = 40;
+	private fillR = 3;
 
 	private rawCache = new Map<number, number>();
 	private tierCache = new Map<number, number>();
@@ -74,9 +66,9 @@ export class World {
 			amp *= 0.5;
 			freq *= 2;
 		}
-		const detail = sum / norm; // détail [-1, 1]
-		const macro = this.noise(wx * sc * 0.28, wz * sc * 0.28); // grande échelle
-		const e = (0.58 * macro + 0.42 * detail + 1) * 0.5; // 0..1
+		const detail = sum / norm;
+		const macro = this.noise(wx * sc * 0.28, wz * sc * 0.28);
+		const e = (0.58 * macro + 0.42 * detail + 1) * 0.5;
 		return clamp01((e - 0.5) * this.contrast + 0.5);
 	}
 
@@ -96,7 +88,6 @@ export class World {
 		return t;
 	}
 
-	/** Clamp 1-lipschitzien (min de cônes) par anneaux : voisins <= 1 palier. */
 	private clamped(gx: number, gz: number): number {
 		const k = keyOf(gx, gz);
 		const cached = this.tierCache.get(k);
@@ -138,7 +129,6 @@ export class World {
 		return m;
 	}
 
-	/** Palier final = fermeture morpho (érosion d'une dilatation). */
 	tier(gx: number, gz: number): number {
 		if (this.fillR <= 0) return this.clamped(gx, gz);
 		const k = keyOf(gx, gz);
@@ -181,7 +171,6 @@ export class World {
 		return (h ^ (h >>> 16)) >>> 0;
 	}
 
-	/** Pente "candidate" : une case montant T->T+1 avec arrière plat T. */
 	private slopeCandidate(
 		gx: number,
 		gz: number,
@@ -201,7 +190,6 @@ export class World {
 			: cand[(h >>> 8) % cand.length];
 	}
 
-	/** Pente FINALE : retire les pentes adjacentes de sens différent. */
 	rampDir(gx: number, gz: number): readonly [number, number] | null {
 		const k = keyOf(gx, gz);
 		const cached = this.rampCache.get(k);
@@ -230,10 +218,11 @@ export class World {
 		return d;
 	}
 
-	/** Hauteur du sol : plat = palier ; pente = interpolé (snap joueur). */
 	height(wx: number, wz: number): number {
-		const gx = Math.floor(wx / this.CELL);
-		const gz = Math.floor(wz / this.CELL);
+		const sx = Math.round(wx * 1000) / 1000;
+		const sz = Math.round(wz * 1000) / 1000;
+		const gx = Math.floor(sx / this.CELL);
+		const gz = Math.floor(sz / this.CELL);
 		const base = this.tier(gx, gz) * this.STEP;
 		const d = this.rampDir(gx, gz);
 		if (!d) return base;

@@ -77,7 +77,6 @@ export {
 	applyVerticalMovement,
 	applyHorizontalMovement,
 	getCameraYaw,
-	clampToRadius,
 	isInsideRay,
 } from './gameplay/Movements';
 
