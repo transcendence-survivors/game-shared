@@ -27,6 +27,7 @@ export interface SwordWeaponConfig extends BaseWeaponConfig {
 	behavior: 'sector';
 	baseRange: number;
 	totalAngleDegrees: number;
+	targetHitboxRadius: number;
 	effectLifetimeS: number;
 }
 

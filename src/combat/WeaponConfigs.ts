@@ -45,6 +45,7 @@ export const WEAPON_CONFIGS = [
 		baseAttackRate: 1.25,
 		baseRange: 4.5,
 		totalAngleDegrees: 100,
+		targetHitboxRadius: 0.75,
 		effectLifetimeS: 0.25,
 		maxActiveEntities: 2,
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,

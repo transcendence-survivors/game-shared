@@ -92,6 +92,7 @@ function validateSpecialized(
 		case 'sword':
 			requireFinitePositive('sword.baseRange', config.baseRange);
 			requireFinitePositive('sword.totalAngleDegrees', config.totalAngleDegrees);
+			requireFinitePositive('sword.targetHitboxRadius', config.targetHitboxRadius);
 			if (config.totalAngleDegrees > 360)
 				throw new RangeError('sword.totalAngleDegrees cannot exceed 360');
 			validateEntityLifetime(
