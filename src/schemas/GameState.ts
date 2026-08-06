@@ -46,6 +46,7 @@ export class Player extends Schema {
 	@type(Aura) aura = new Aura();
 	auraCooldownS = 0;
 	@type('boolean') insideRay: boolean = true;
+	@type('boolean') ready: boolean = false;
 }
 
 export class Monster extends Schema {
@@ -71,4 +72,5 @@ export class GameState extends Schema {
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;
 	@type('number') seed: number = 0;
+	@type('boolean') started: boolean = false;
 }
