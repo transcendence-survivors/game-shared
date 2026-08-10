@@ -32,6 +32,7 @@ export class CombatEntity extends Schema {
 	@type('string') weaponKind: WeaponKind = WEAPON_KINDS[0];
 	@type('string') ownerSessionId: string = '';
 	@type('string') targetId: string = '';
+	@type('string') volleyId: string = '';
 	@type('number') x: number = 0;
 	@type('number') y: number = 0;
 	@type('number') z: number = 0;
@@ -43,6 +44,7 @@ export class CombatEntity extends Schema {
 	@type('string') phase: CombatEntityPhase = COMBAT_ENTITY_PHASES[0];
 	@type('number') spawnSequence: number = 0;
 	@type('number') createdAtS: number = 0;
+	@type('number') phaseStartedAtS: number = 0;
 	@type('number') expiresAtS: number = 0;
 }
 
@@ -106,4 +108,5 @@ export class GameState extends Schema {
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;
 	@type('number') seed: number = 0;
+	@type('number') combatTimeS: number = 0;
 }
