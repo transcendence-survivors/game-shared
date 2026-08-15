@@ -26,6 +26,13 @@ export const COMBAT_LIMITS = {
 	maxEntityLifetimeS: 10,
 } as const satisfies CombatLimits;
 
+const FULL_AFFINITY = {
+	damage: 1,
+	attackRate: 1,
+	range: 1,
+	size: 1,
+} as const;
+
 export const WEAPON_CONFIGS = [
 	{
 		kind: 'aura',
@@ -35,6 +42,7 @@ export const WEAPON_CONFIGS = [
 		baseAttackRate: 1,
 		baseRadius: 6,
 		maxActiveEntities: 1,
+		bonusAffinity: { ...FULL_AFFINITY, attackRate: 0.8 },
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
@@ -48,6 +56,7 @@ export const WEAPON_CONFIGS = [
 		targetHitboxRadius: 0.75,
 		effectLifetimeS: 0.25,
 		maxActiveEntities: 2,
+		bonusAffinity: { ...FULL_AFFINITY, range: 0.65 },
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
@@ -62,6 +71,7 @@ export const WEAPON_CONFIGS = [
 		damageIntervalS: 0.5,
 		baseActiveDurationS: 3,
 		maxActiveEntities: 2,
+		bonusAffinity: { ...FULL_AFFINITY, attackRate: 0.5, size: 1.25 },
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
@@ -77,6 +87,7 @@ export const WEAPON_CONFIGS = [
 		maxLifetimeS: 3,
 		penetration: 0,
 		maxActiveEntities: 4,
+		bonusAffinity: { ...FULL_AFFINITY, range: 1.25 },
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
@@ -92,6 +103,7 @@ export const WEAPON_CONFIGS = [
 		maxLifetimeS: 1.5,
 		penetration: 0,
 		maxActiveEntities: 12,
+		bonusAffinity: { ...FULL_AFFINITY, damage: 0.8, attackRate: 1.2 },
 		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 ] as const satisfies readonly WeaponConfig[];

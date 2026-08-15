@@ -43,16 +43,41 @@ function validateScaling(
 	if (scaling.length !== maxLevel)
 		throw new RangeError(`${kind}.levelScaling must match maxLevel`);
 	for (const [index, level] of scaling.entries()) {
-		requireFinitePositive(`${kind}.levelScaling[${index}].damage`, level.damage);
+		requireFinitePositive(
+			`${kind}.levelScaling[${index}].damage`,
+			level.damage,
+		);
 		requireFinitePositive(
 			`${kind}.levelScaling[${index}].attackRate`,
 			level.attackRate,
 		);
-		requireFinitePositive(`${kind}.levelScaling[${index}].range`, level.range);
+		requireFinitePositive(
+			`${kind}.levelScaling[${index}].range`,
+			level.range,
+		);
 		requireFinitePositive(
 			`${kind}.levelScaling[${index}].duration`,
 			level.duration,
 		);
+		for (const stat of ['size', 'speed'] as const) {
+			if (level[stat] !== undefined)
+				requireFinitePositive(
+					`${kind}.levelScaling[${index}].${stat}`,
+					level[stat],
+				);
+		}
+		for (const stat of ['quantity', 'penetration'] as const) {
+			if (level[stat] !== undefined) {
+				requireInteger(
+					`${kind}.levelScaling[${index}].${stat}`,
+					level[stat],
+				);
+				requireFiniteNonNegative(
+					`${kind}.levelScaling[${index}].${stat}`,
+					level[stat],
+				);
+			}
+		}
 	}
 }
 
@@ -62,13 +87,24 @@ function validateBase(config: WeaponConfig, limits: CombatLimits): void {
 	if (config.maxLevel > limits.maxWeaponLevel)
 		throw new RangeError(`${config.kind}.maxLevel exceeds combat limit`);
 	requireFinitePositive(`${config.kind}.baseDamage`, config.baseDamage);
-	requireFinitePositive(`${config.kind}.baseAttackRate`, config.baseAttackRate);
-	requireInteger(`${config.kind}.maxActiveEntities`, config.maxActiveEntities);
+	requireFinitePositive(
+		`${config.kind}.baseAttackRate`,
+		config.baseAttackRate,
+	);
+	requireInteger(
+		`${config.kind}.maxActiveEntities`,
+		config.maxActiveEntities,
+	);
 	requireFinitePositive(
 		`${config.kind}.maxActiveEntities`,
 		config.maxActiveEntities,
 	);
 	validateScaling(config.kind, config.maxLevel, config.levelScaling);
+	for (const [stat, affinity] of Object.entries(config.bonusAffinity))
+		requireFiniteNonNegative(
+			`${config.kind}.bonusAffinity.${stat}`,
+			affinity,
+		);
 }
 
 function validateEntityLifetime(
@@ -91,10 +127,18 @@ function validateSpecialized(
 			return;
 		case 'sword':
 			requireFinitePositive('sword.baseRange', config.baseRange);
-			requireFinitePositive('sword.totalAngleDegrees', config.totalAngleDegrees);
-			requireFinitePositive('sword.targetHitboxRadius', config.targetHitboxRadius);
+			requireFinitePositive(
+				'sword.totalAngleDegrees',
+				config.totalAngleDegrees,
+			);
+			requireFinitePositive(
+				'sword.targetHitboxRadius',
+				config.targetHitboxRadius,
+			);
 			if (config.totalAngleDegrees > 360)
-				throw new RangeError('sword.totalAngleDegrees cannot exceed 360');
+				throw new RangeError(
+					'sword.totalAngleDegrees cannot exceed 360',
+				);
 			validateEntityLifetime(
 				'sword.effectLifetimeS',
 				config.effectLifetimeS,
@@ -102,10 +146,22 @@ function validateSpecialized(
 			);
 			return;
 		case 'axe':
-			requireFinitePositive('axe.baseProjectileSpeed', config.baseProjectileSpeed);
-			requireFinitePositive('axe.baseTravelDistance', config.baseTravelDistance);
-			requireFinitePositive('axe.baseContactRadius', config.baseContactRadius);
-			requireFinitePositive('axe.damageIntervalS', config.damageIntervalS);
+			requireFinitePositive(
+				'axe.baseProjectileSpeed',
+				config.baseProjectileSpeed,
+			);
+			requireFinitePositive(
+				'axe.baseTravelDistance',
+				config.baseTravelDistance,
+			);
+			requireFinitePositive(
+				'axe.baseContactRadius',
+				config.baseContactRadius,
+			);
+			requireFinitePositive(
+				'axe.damageIntervalS',
+				config.damageIntervalS,
+			);
 			validateEntityLifetime(
 				'axe.totalLifetimeS',
 				config.baseTravelDistance / config.baseProjectileSpeed +
@@ -114,10 +170,22 @@ function validateSpecialized(
 			);
 			return;
 		case 'staff':
-			requireFinitePositive('staff.baseAcquisitionRange', config.baseAcquisitionRange);
-			requireFinitePositive('staff.baseProjectileSpeed', config.baseProjectileSpeed);
-			requireFinitePositive('staff.maxTurnRateDegreesS', config.maxTurnRateDegreesS);
-			requireFinitePositive('staff.collisionRadius', config.collisionRadius);
+			requireFinitePositive(
+				'staff.baseAcquisitionRange',
+				config.baseAcquisitionRange,
+			);
+			requireFinitePositive(
+				'staff.baseProjectileSpeed',
+				config.baseProjectileSpeed,
+			);
+			requireFinitePositive(
+				'staff.maxTurnRateDegreesS',
+				config.maxTurnRateDegreesS,
+			);
+			requireFinitePositive(
+				'staff.collisionRadius',
+				config.collisionRadius,
+			);
 			validateEntityLifetime(
 				'staff.maxLifetimeS',
 				config.maxLifetimeS,
@@ -128,15 +196,28 @@ function validateSpecialized(
 			return;
 		case 'bow':
 			requireInteger('bow.projectileCount', config.projectileCount);
-			requireFinitePositive('bow.projectileCount', config.projectileCount);
+			requireFinitePositive(
+				'bow.projectileCount',
+				config.projectileCount,
+			);
 			if (config.spreadAnglesDegrees.length !== config.projectileCount)
-				throw new RangeError('bow.spreadAnglesDegrees must match projectileCount');
+				throw new RangeError(
+					'bow.spreadAnglesDegrees must match projectileCount',
+				);
 			for (const [index, angle] of config.spreadAnglesDegrees.entries()) {
 				if (!Number.isFinite(angle))
-					throw new RangeError(`bow.spreadAnglesDegrees[${index}] must be finite`);
+					throw new RangeError(
+						`bow.spreadAnglesDegrees[${index}] must be finite`,
+					);
 			}
-			requireFinitePositive('bow.baseProjectileSpeed', config.baseProjectileSpeed);
-			requireFinitePositive('bow.collisionRadius', config.collisionRadius);
+			requireFinitePositive(
+				'bow.baseProjectileSpeed',
+				config.baseProjectileSpeed,
+			);
+			requireFinitePositive(
+				'bow.collisionRadius',
+				config.collisionRadius,
+			);
 			validateEntityLifetime(
 				'bow.maxLifetimeS',
 				config.maxLifetimeS,

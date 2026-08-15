@@ -46,7 +46,19 @@ export { Life } from './schemas/Life';
 
 export { Experience, xpRequiredForLevel } from './schemas/Experience';
 
-export { rollUpgradeOptions } from './gameplay/RollUpgrades';
+export {
+	rollUpgradeOptions,
+	canApplyUpgrade,
+	applyUpgrade,
+} from './gameplay/RollUpgrades';
+
+export {
+	UPGRADE_POOL,
+	weaponUpgradeDefinitions,
+	type UpgradeDef,
+	type UpgradeEffect,
+	type GlobalUpgradeStat,
+} from './utils/Upgrades';
 
 export {
 	MAX_DT,
@@ -129,6 +141,7 @@ export {
 
 export type {
 	WeaponLevelScaling,
+	WeaponBonusAffinity,
 	BaseWeaponConfig,
 	AuraWeaponConfig,
 	SwordWeaponConfig,

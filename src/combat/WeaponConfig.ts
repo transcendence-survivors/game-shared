@@ -5,6 +5,17 @@ export interface WeaponLevelScaling {
 	attackRate: number;
 	range: number;
 	duration: number;
+	size?: number;
+	speed?: number;
+	quantity?: number;
+	penetration?: number;
+}
+
+export interface WeaponBonusAffinity {
+	damage: number;
+	attackRate: number;
+	range: number;
+	size: number;
 }
 
 export interface BaseWeaponConfig {
@@ -14,6 +25,7 @@ export interface BaseWeaponConfig {
 	baseAttackRate: number;
 	maxActiveEntities: number;
 	levelScaling: readonly WeaponLevelScaling[];
+	bonusAffinity: WeaponBonusAffinity;
 }
 
 export interface AuraWeaponConfig extends BaseWeaponConfig {

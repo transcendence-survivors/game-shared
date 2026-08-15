@@ -64,6 +64,7 @@ export class PlayerStats extends Schema {
 	@type('number') killAmount: number = 0;
 	@type('number') lifesteal: number = 1;
 	@type('number') range: number = 8;
+	upgradeStacks = new Map<string, number>();
 }
 
 export class Player extends Schema {
@@ -102,8 +103,7 @@ export class Monster extends Schema {
 export class GameState extends Schema {
 	@type({ map: Player }) players = new MapSchema<Player>();
 	@type({ map: Monster }) monsters = new MapSchema<Monster>();
-	@type({ map: CombatEntity }) combatEntities =
-		new MapSchema<CombatEntity>();
+	@type({ map: CombatEntity }) combatEntities = new MapSchema<CombatEntity>();
 	@type('number') rayX: number = 0;
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;
