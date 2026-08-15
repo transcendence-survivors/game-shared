@@ -14,7 +14,6 @@ export const RAY_SPEED = 1;
 export const RAY_DIR_X = 0;
 export const RAY_DIR_Z = 1;
 
-export const PLAYER_ATTACK_DAMAGE = 10;
 export const PLAYER_MAX_LIFE = 100;
 
 export const PLAYER_AURA_RADIUS = 24; // TODO 6

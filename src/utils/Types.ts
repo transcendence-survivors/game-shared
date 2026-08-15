@@ -27,10 +27,6 @@ export interface MoveInput {
 	cameraYaw: number;
 }
 
-export interface AttackInput {
-	monsterId: string;
-}
-
 export type WeaponKind = (typeof WEAPON_KINDS)[number];
 
 export type CombatEntityKind = (typeof COMBAT_ENTITY_KINDS)[number];

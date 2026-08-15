@@ -1,6 +1,5 @@
 export const ClientMessage = {
 	Move: 'move',
-	Attack: 'attack',
 	RequestUpgradeOptions: 'requestUpgradeOptions',
 	SelectUpgrade: 'selectUpgrade',
 } as const;
