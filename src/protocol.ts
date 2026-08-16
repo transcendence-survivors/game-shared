@@ -2,6 +2,7 @@ export const ClientMessage = {
 	Move: 'move',
 	RequestUpgradeOptions: 'requestUpgradeOptions',
 	SelectUpgrade: 'selectUpgrade',
+	SetDebugImmortal: 'setDebugImmortal',
 } as const;
 
 export const ServerMessage = {

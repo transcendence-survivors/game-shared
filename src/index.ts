@@ -15,6 +15,7 @@ export type {
 	WeaponKind,
 	CombatEntityKind,
 	CombatEntityPhase,
+	CombatHitboxShape,
 	SelectUpgradeInput,
 	WorldSeedMessage,
 	GameOverMessage,
@@ -81,6 +82,7 @@ export {
 	WEAPON_KINDS,
 	COMBAT_ENTITY_KINDS,
 	COMBAT_ENTITY_PHASES,
+	COMBAT_HITBOX_SHAPES,
 	XP_BASE_TO_LEVEL,
 	XP_LEVEL_GROWTH,
 	MONSTER_KINDS,
@@ -106,11 +108,12 @@ export {
 	MONSTER_ATTACK_COOLDOWN_S,
 } from './utils/Constants';
 
-export { World } from './world/World';
+export { World, clamp01, type WorldColor } from './world/World';
 
 export {
 	applyVerticalMovement,
 	applyHorizontalMovement,
+	simulatePlayerMovement,
 	getCameraYaw,
 	clampToRadius,
 	isInsideRay,
@@ -127,6 +130,20 @@ export {
 export { nearestIndex, chaseStep, type ChaseStep } from './gameplay/MonsterAi';
 
 export {
+	DEFAULT_MONSTER_HITBOX_RADIUS,
+	DEFAULT_MONSTER_HITBOX_HEIGHT,
+	DEFAULT_MONSTER_HITBOX_OFFSET_X,
+	DEFAULT_MONSTER_HITBOX_OFFSET_Y,
+	DEFAULT_MONSTER_HITBOX_OFFSET_Z,
+	BOSS_MODEL_SCALE,
+	MONSTER_HITBOX_PROFILES,
+	getMonsterHitboxRadius,
+	getMonsterHitbox,
+	getMonsterCompoundHitboxes,
+	type MonsterHitboxPrimitive,
+} from './gameplay/MonsterHitboxes';
+
+export {
 	distanceSquared,
 	normalizeAngle,
 	rotateVector,
@@ -136,6 +153,23 @@ export {
 	distanceSquaredToSegment,
 	doesMovingCircleHitCircle,
 } from './gameplay/CombatGeometry';
+
+export {
+	doVerticalCylindersIntersect,
+	doesSphereHitVerticalCylinder,
+	doesMovingSphereHitVerticalCylinder,
+	doesMovingSphereHitSphere,
+	doesSweptBoxHitVerticalCylinder,
+	doesSweptBoxHitSphere,
+	doesHalfCylinderHitVerticalCylinder,
+	doesHalfCylinderHitSphere,
+	monsterHitboxCylinder,
+	monsterHitboxCylinders,
+	monsterHitboxPrimitives,
+	type VerticalCylinder,
+	type MonsterCylinderSource,
+	type MonsterWorldHitbox,
+} from './gameplay/CombatGeometry3d';
 
 export type {
 	WeaponLevelScaling,

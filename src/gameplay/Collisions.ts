@@ -5,6 +5,19 @@ import type { World } from '../world/World';
 const GROUND_EPS = 0.1;
 /** Retrait utilisé pour sonder le sol de part et d'autre d'une frontière. */
 const PROBE = 0.01;
+const COLLISION_SAMPLES = 16;
+
+/** Centre + couronne du cylindre joueur, calculee une seule fois. */
+const PLAYER_FOOTPRINT_OFFSETS: ReadonlyArray<readonly [number, number]> = [
+	[0, 0],
+	...Array.from({ length: COLLISION_SAMPLES }, (_, index) => {
+		const angle = (index * Math.PI * 2) / COLLISION_SAMPLES;
+		return [
+			Math.cos(angle) * PLAYER_HB_RADIUS,
+			Math.sin(angle) * PLAYER_HB_RADIUS,
+		] as const;
+	}),
+];
 
 function cellOf(world: World, x: number, z: number) {
 	return {
@@ -84,15 +97,7 @@ function isPositionWalkable(
 	z: number,
 	playerY: number,
 ) {
-	const offsets = [
-		[0, 0],
-		[PLAYER_HB_RADIUS, 0],
-		[-PLAYER_HB_RADIUS, 0],
-		[0, PLAYER_HB_RADIUS],
-		[0, -PLAYER_HB_RADIUS],
-	];
-
-	for (const [dx, dz] of offsets) {
+	for (const [dx, dz] of PLAYER_FOOTPRINT_OFFSETS) {
 		if (
 			!isSampleWalkable(
 				world,
@@ -107,6 +112,53 @@ function isPositionWalkable(
 		}
 	}
 	return true;
+}
+
+/**
+ * Extrait un joueur dont le centre est valide mais dont le volume chevauche
+ * deja un mur. Sans cette depenetration, chaque petit pas de sortie est refuse
+ * et le joueur reste prisonnier de sa position precedente.
+ */
+function recoverEmbeddedPosition(
+	world: World,
+	cellX: number,
+	cellZ: number,
+	currentPos: { x: number; z: number },
+	playerY: number,
+) {
+	const margin = PLAYER_HB_RADIUS + PROBE;
+	const recovered = {
+		x: clamp(
+			currentPos.x,
+			cellX * world.CELL + margin,
+			(cellX + 1) * world.CELL - margin,
+		),
+		z: clamp(
+			currentPos.z,
+			cellZ * world.CELL + margin,
+			(cellZ + 1) * world.CELL - margin,
+		),
+	};
+	if (
+		isPositionWalkable(
+			world,
+			cellX,
+			cellZ,
+			recovered.x,
+			recovered.z,
+			playerY,
+		)
+	)
+		return recovered;
+
+	// Secours pour un ancien etat tres enfonce ou une geometrie de rampe rare.
+	const center = {
+		x: (cellX + 0.5) * world.CELL,
+		z: (cellZ + 0.5) * world.CELL,
+	};
+	return isPositionWalkable(world, cellX, cellZ, center.x, center.z, playerY)
+		? center
+		: currentPos;
 }
 
 export function resolveTerrainCollision(
@@ -152,6 +204,24 @@ export function resolveTerrainCollision(
 		)
 	)
 		return { x: currentPos.x, z: targetPos.z };
+
+	if (
+		!isPositionWalkable(
+			world,
+			from.cellX,
+			from.cellZ,
+			currentPos.x,
+			currentPos.z,
+			playerY,
+		)
+	)
+		return recoverEmbeddedPosition(
+			world,
+			from.cellX,
+			from.cellZ,
+			currentPos,
+			playerY,
+		);
 
 	return { x: currentPos.x, z: currentPos.z };
 }

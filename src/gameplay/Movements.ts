@@ -1,14 +1,18 @@
-import * as BABYLON from '@babylonjs/core';
-import { type MovementState, type MoveInput, type Vec2d } from '../utils/Types';
+import {
+	type MovementState,
+	type MoveInput,
+	type Vec2d,
+	type Vec3d,
+} from '../utils/Types';
 import { JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
+import type { World } from '../world/World';
+import { resolveTerrainCollision } from './Collisions';
 
 function getForwardVector(rotationY: number): Vec2d {
 	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };
 }
 
-export function getCameraYaw(cameraForward: BABYLON.Vector3) {
-	cameraForward.y = 0;
-	cameraForward.normalize();
+export function getCameraYaw(cameraForward: Pick<Vec3d, 'x' | 'z'>) {
 	return Math.atan2(cameraForward.x, cameraForward.z);
 }
 
@@ -79,6 +83,41 @@ export function applyVerticalMovement(
 		isGrounded = true;
 	} else if (isGrounded && y > groundHeight + 0.01) isGrounded = false;
 	return { y, velocityY, isGrounded };
+}
+
+export function simulatePlayerMovement(
+	world: World,
+	state: MovementState,
+	input: MoveInput,
+	speed: number,
+): MovementState {
+	const horizontal = applyHorizontalMovement(
+		state,
+		input,
+		input.cameraYaw,
+		speed,
+	);
+	const resolved = resolveTerrainCollision(
+		world,
+		state,
+		horizontal,
+		state.y,
+	);
+	const vertical = applyVerticalMovement(
+		state.y,
+		state.velocityY,
+		state.isGrounded,
+		world.height(resolved.x, resolved.z),
+		input,
+	);
+	return {
+		x: resolved.x,
+		y: vertical.y,
+		z: resolved.z,
+		rotationY: horizontal.rotationY,
+		velocityY: vertical.velocityY,
+		isGrounded: vertical.isGrounded,
+	};
 }
 
 export function clampToRadius(

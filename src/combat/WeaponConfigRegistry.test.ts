@@ -24,7 +24,7 @@ describe('WeaponConfigRegistry', () => {
 			'bow',
 		]);
 		expect(registry.get('bow').projectileCount).toBe(3);
-		expect(registry.get('sword').totalAngleDegrees).toBe(100);
+		expect(registry.get('sword').totalAngleDegrees).toBe(180);
 	});
 
 	it('freezes configurations and limits', () => {

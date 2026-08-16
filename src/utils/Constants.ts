@@ -1,4 +1,3 @@
-// Gameplay
 export const MAX_DT = 0.1;
 export const SPEED = 30;
 export const ROTATION_SPEED = 0.05;
@@ -31,6 +30,12 @@ export const COMBAT_ENTITY_PHASES = [
 	'flying',
 	'active',
 	'expiring',
+] as const;
+export const COMBAT_HITBOX_SHAPES = [
+	'sphere',
+	'box',
+	'cylinder',
+	'half-cylinder',
 ] as const;
 export const XP_BASE_TO_LEVEL = 25; // TODO 100
 export const XP_LEVEL_GROWTH = 1.2;
@@ -67,7 +72,7 @@ export const MONSTER_MAX_POPULATION = 60;
 export const MONSTER_SPAWN_MIN_DIST = 20;
 export const MONSTER_SPAWN_MAX_DIST = 60;
 
-export const MONSTER_MOVE_SPEED = 18;
+export const MONSTER_MOVE_SPEED = 9;
 export const MONSTER_ATTACK_RANGE = 1;
 export const BOSS_ATTACK_RANGE = 3;
 export const MONSTER_ATTACK_COOLDOWN_S = 1.2;

@@ -32,15 +32,18 @@ export interface AuraWeaponConfig extends BaseWeaponConfig {
 	kind: 'aura';
 	behavior: 'aura';
 	baseRadius: number;
+	baseHeight: number;
 }
 
 export interface SwordWeaponConfig extends BaseWeaponConfig {
 	kind: 'sword';
 	behavior: 'sector';
 	baseRange: number;
+	baseKnockback: number;
 	totalAngleDegrees: number;
 	targetHitboxRadius: number;
 	effectLifetimeS: number;
+	hitboxHeight: number;
 }
 
 export interface AxeWeaponConfig extends BaseWeaponConfig {
@@ -49,6 +52,7 @@ export interface AxeWeaponConfig extends BaseWeaponConfig {
 	baseProjectileSpeed: number;
 	baseTravelDistance: number;
 	baseContactRadius: number;
+	baseContactHeight: number;
 	damageIntervalS: number;
 	baseActiveDurationS: number;
 }
@@ -71,6 +75,9 @@ export interface BowWeaponConfig extends BaseWeaponConfig {
 	spreadAnglesDegrees: readonly number[];
 	baseProjectileSpeed: number;
 	collisionRadius: number;
+	hitboxWidth: number;
+	hitboxHeight: number;
+	hitboxDepth: number;
 	maxLifetimeS: number;
 	penetration: number;
 }

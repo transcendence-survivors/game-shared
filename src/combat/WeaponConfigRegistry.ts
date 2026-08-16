@@ -123,10 +123,13 @@ function validateSpecialized(
 ): void {
 	switch (config.kind) {
 		case 'aura':
+			requireFinitePositive('aura.baseHeight', config.baseHeight);
 			requireFinitePositive('aura.baseRadius', config.baseRadius);
 			return;
 		case 'sword':
+			requireFinitePositive('sword.hitboxHeight', config.hitboxHeight);
 			requireFinitePositive('sword.baseRange', config.baseRange);
+			requireFinitePositive('sword.baseKnockback', config.baseKnockback);
 			requireFinitePositive(
 				'sword.totalAngleDegrees',
 				config.totalAngleDegrees,
@@ -146,6 +149,10 @@ function validateSpecialized(
 			);
 			return;
 		case 'axe':
+			requireFinitePositive(
+				'axe.baseContactHeight',
+				config.baseContactHeight,
+			);
 			requireFinitePositive(
 				'axe.baseProjectileSpeed',
 				config.baseProjectileSpeed,
@@ -195,6 +202,9 @@ function validateSpecialized(
 			requireFiniteNonNegative('staff.penetration', config.penetration);
 			return;
 		case 'bow':
+			requireFinitePositive('bow.hitboxWidth', config.hitboxWidth);
+			requireFinitePositive('bow.hitboxHeight', config.hitboxHeight);
+			requireFinitePositive('bow.hitboxDepth', config.hitboxDepth);
 			requireInteger('bow.projectileCount', config.projectileCount);
 			requireFinitePositive(
 				'bow.projectileCount',

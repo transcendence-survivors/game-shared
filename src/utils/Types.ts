@@ -2,6 +2,7 @@ import {
 	BOSS_KINDS,
 	COMBAT_ENTITY_KINDS,
 	COMBAT_ENTITY_PHASES,
+	COMBAT_HITBOX_SHAPES,
 	MONSTER_KINDS,
 	WEAPON_KINDS,
 } from './Constants';
@@ -32,6 +33,7 @@ export type WeaponKind = (typeof WEAPON_KINDS)[number];
 export type CombatEntityKind = (typeof COMBAT_ENTITY_KINDS)[number];
 
 export type CombatEntityPhase = (typeof COMBAT_ENTITY_PHASES)[number];
+export type CombatHitboxShape = (typeof COMBAT_HITBOX_SHAPES)[number];
 
 export interface MonsterDamageEvent {
 	id: string;
@@ -100,16 +102,6 @@ export interface VerticalMove {
 	y: number;
 	velocityY: number;
 	isGrounded: boolean;
-}
-
-export interface PlayerStats {
-	health: number;
-	attackSpeed: number;
-	moveSpeed: number;
-	attackDamage: number;
-	armor: number;
-	luck: number;
-	killAmount: number;
 }
 
 export interface UpgradeOption {
