@@ -6,7 +6,6 @@ import { COMBAT_LIMITS, WEAPON_CONFIGS } from './WeaponConfigs';
 function cloneConfigs(): WeaponConfig[] {
 	return WEAPON_CONFIGS.map((config) => ({
 		...config,
-		levelScaling: config.levelScaling.map((level) => ({ ...level })),
 		...(config.kind === 'bow'
 			? { spreadAnglesDegrees: [...config.spreadAnglesDegrees] }
 			: {}),
@@ -30,7 +29,6 @@ describe('WeaponConfigRegistry', () => {
 	it('freezes configurations and limits', () => {
 		const registry = new WeaponConfigRegistry();
 		expect(Object.isFrozen(registry.get('aura'))).toBe(true);
-		expect(Object.isFrozen(registry.get('aura').levelScaling)).toBe(true);
 		expect(Object.isFrozen(registry.limits)).toBe(true);
 	});
 

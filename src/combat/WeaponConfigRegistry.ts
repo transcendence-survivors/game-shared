@@ -1,10 +1,6 @@
 import { WEAPON_KINDS } from '../utils/Constants';
 import type { WeaponKind } from '../utils/Types';
-import type {
-	CombatLimits,
-	WeaponConfig,
-	WeaponLevelScaling,
-} from './WeaponConfig';
+import type { CombatLimits, WeaponConfig } from './WeaponConfig';
 import {
 	COMBAT_CONFIG_VERSION,
 	COMBAT_LIMITS,
@@ -26,6 +22,11 @@ function requireInteger(name: string, value: number): void {
 		throw new RangeError(`${name} must be an integer`);
 }
 
+function requirePositiveInteger(name: string, value: number): void {
+	requireInteger(name, value);
+	requireFinitePositive(name, value);
+}
+
 function deepFreeze<T>(value: T): Readonly<T> {
 	if (value && typeof value === 'object' && !Object.isFrozen(value)) {
 		Object.freeze(value);
@@ -35,71 +36,48 @@ function deepFreeze<T>(value: T): Readonly<T> {
 	return value;
 }
 
-function validateScaling(
+const POSITIVE_FIELDS: Record<WeaponKind, string> = {
+	aura: 'baseHeight baseRadius',
+	sword: 'hitboxHeight baseRange baseKnockback totalAngleDegrees targetHitboxRadius',
+	axe: 'baseContactHeight baseProjectileSpeed baseTravelDistance baseContactRadius damageIntervalS',
+	staff: 'baseAcquisitionRange baseProjectileSpeed maxTurnRateDegreesS collisionRadius',
+	bow: 'hitboxWidth hitboxHeight hitboxDepth projectileCount baseProjectileSpeed collisionRadius',
+};
+const INTEGER_FIELDS: Partial<Record<WeaponKind, string>> = {
+	staff: 'penetration',
+	bow: 'projectileCount penetration',
+};
+const NON_NEGATIVE_FIELDS: Partial<Record<WeaponKind, string>> = {
+	staff: 'penetration',
+	bow: 'penetration',
+};
+
+function validateFields(
 	kind: WeaponKind,
-	maxLevel: number,
-	scaling: readonly WeaponLevelScaling[],
+	config: WeaponConfig,
+	fields: string,
+	validate: (name: string, value: number) => void,
 ): void {
-	if (scaling.length !== maxLevel)
-		throw new RangeError(`${kind}.levelScaling must match maxLevel`);
-	for (const [index, level] of scaling.entries()) {
-		requireFinitePositive(
-			`${kind}.levelScaling[${index}].damage`,
-			level.damage,
-		);
-		requireFinitePositive(
-			`${kind}.levelScaling[${index}].attackRate`,
-			level.attackRate,
-		);
-		requireFinitePositive(
-			`${kind}.levelScaling[${index}].range`,
-			level.range,
-		);
-		requireFinitePositive(
-			`${kind}.levelScaling[${index}].duration`,
-			level.duration,
-		);
-		for (const stat of ['size', 'speed'] as const) {
-			if (level[stat] !== undefined)
-				requireFinitePositive(
-					`${kind}.levelScaling[${index}].${stat}`,
-					level[stat],
-				);
-		}
-		for (const stat of ['quantity', 'penetration'] as const) {
-			if (level[stat] !== undefined) {
-				requireInteger(
-					`${kind}.levelScaling[${index}].${stat}`,
-					level[stat],
-				);
-				requireFiniteNonNegative(
-					`${kind}.levelScaling[${index}].${stat}`,
-					level[stat],
-				);
-			}
-		}
-	}
+	if (!fields) return;
+	const values = config as unknown as Record<string, number>;
+	for (const field of fields.split(' '))
+		validate(`${kind}.${field}`, values[field]);
 }
 
 function validateBase(config: WeaponConfig, limits: CombatLimits): void {
-	requireInteger(`${config.kind}.maxLevel`, config.maxLevel);
-	requireFinitePositive(`${config.kind}.maxLevel`, config.maxLevel);
+	requirePositiveInteger(`${config.kind}.maxLevel`, config.maxLevel);
 	if (config.maxLevel > limits.maxWeaponLevel)
 		throw new RangeError(`${config.kind}.maxLevel exceeds combat limit`);
-	requireFinitePositive(`${config.kind}.baseDamage`, config.baseDamage);
-	requireFinitePositive(
-		`${config.kind}.baseAttackRate`,
-		config.baseAttackRate,
+	validateFields(
+		config.kind,
+		config,
+		'baseDamage baseAttackRate',
+		requireFinitePositive,
 	);
-	requireInteger(
+	requirePositiveInteger(
 		`${config.kind}.maxActiveEntities`,
 		config.maxActiveEntities,
 	);
-	requireFinitePositive(
-		`${config.kind}.maxActiveEntities`,
-		config.maxActiveEntities,
-	);
-	validateScaling(config.kind, config.maxLevel, config.levelScaling);
 	for (const [stat, affinity] of Object.entries(config.bonusAffinity))
 		requireFiniteNonNegative(
 			`${config.kind}.bonusAffinity.${stat}`,
@@ -121,23 +99,28 @@ function validateSpecialized(
 	config: WeaponConfig,
 	limits: Readonly<CombatLimits>,
 ): void {
+	validateFields(
+		config.kind,
+		config,
+		POSITIVE_FIELDS[config.kind],
+		requireFinitePositive,
+	);
+	validateFields(
+		config.kind,
+		config,
+		INTEGER_FIELDS[config.kind] ?? '',
+		requireInteger,
+	);
+	validateFields(
+		config.kind,
+		config,
+		NON_NEGATIVE_FIELDS[config.kind] ?? '',
+		requireFiniteNonNegative,
+	);
 	switch (config.kind) {
 		case 'aura':
-			requireFinitePositive('aura.baseHeight', config.baseHeight);
-			requireFinitePositive('aura.baseRadius', config.baseRadius);
 			return;
 		case 'sword':
-			requireFinitePositive('sword.hitboxHeight', config.hitboxHeight);
-			requireFinitePositive('sword.baseRange', config.baseRange);
-			requireFinitePositive('sword.baseKnockback', config.baseKnockback);
-			requireFinitePositive(
-				'sword.totalAngleDegrees',
-				config.totalAngleDegrees,
-			);
-			requireFinitePositive(
-				'sword.targetHitboxRadius',
-				config.targetHitboxRadius,
-			);
 			if (config.totalAngleDegrees > 360)
 				throw new RangeError(
 					'sword.totalAngleDegrees cannot exceed 360',
@@ -149,26 +132,6 @@ function validateSpecialized(
 			);
 			return;
 		case 'axe':
-			requireFinitePositive(
-				'axe.baseContactHeight',
-				config.baseContactHeight,
-			);
-			requireFinitePositive(
-				'axe.baseProjectileSpeed',
-				config.baseProjectileSpeed,
-			);
-			requireFinitePositive(
-				'axe.baseTravelDistance',
-				config.baseTravelDistance,
-			);
-			requireFinitePositive(
-				'axe.baseContactRadius',
-				config.baseContactRadius,
-			);
-			requireFinitePositive(
-				'axe.damageIntervalS',
-				config.damageIntervalS,
-			);
 			validateEntityLifetime(
 				'axe.totalLifetimeS',
 				config.baseTravelDistance / config.baseProjectileSpeed +
@@ -177,39 +140,13 @@ function validateSpecialized(
 			);
 			return;
 		case 'staff':
-			requireFinitePositive(
-				'staff.baseAcquisitionRange',
-				config.baseAcquisitionRange,
-			);
-			requireFinitePositive(
-				'staff.baseProjectileSpeed',
-				config.baseProjectileSpeed,
-			);
-			requireFinitePositive(
-				'staff.maxTurnRateDegreesS',
-				config.maxTurnRateDegreesS,
-			);
-			requireFinitePositive(
-				'staff.collisionRadius',
-				config.collisionRadius,
-			);
 			validateEntityLifetime(
 				'staff.maxLifetimeS',
 				config.maxLifetimeS,
 				limits,
 			);
-			requireInteger('staff.penetration', config.penetration);
-			requireFiniteNonNegative('staff.penetration', config.penetration);
 			return;
 		case 'bow':
-			requireFinitePositive('bow.hitboxWidth', config.hitboxWidth);
-			requireFinitePositive('bow.hitboxHeight', config.hitboxHeight);
-			requireFinitePositive('bow.hitboxDepth', config.hitboxDepth);
-			requireInteger('bow.projectileCount', config.projectileCount);
-			requireFinitePositive(
-				'bow.projectileCount',
-				config.projectileCount,
-			);
 			if (config.spreadAnglesDegrees.length !== config.projectileCount)
 				throw new RangeError(
 					'bow.spreadAnglesDegrees must match projectileCount',
@@ -220,28 +157,17 @@ function validateSpecialized(
 						`bow.spreadAnglesDegrees[${index}] must be finite`,
 					);
 			}
-			requireFinitePositive(
-				'bow.baseProjectileSpeed',
-				config.baseProjectileSpeed,
-			);
-			requireFinitePositive(
-				'bow.collisionRadius',
-				config.collisionRadius,
-			);
 			validateEntityLifetime(
 				'bow.maxLifetimeS',
 				config.maxLifetimeS,
 				limits,
 			);
-			requireInteger('bow.penetration', config.penetration);
-			requireFiniteNonNegative('bow.penetration', config.penetration);
 	}
 }
 
 function validateLimits(limits: Readonly<CombatLimits>): void {
 	for (const [name, value] of Object.entries(limits)) {
-		requireInteger(`combatLimits.${name}`, value);
-		requireFinitePositive(`combatLimits.${name}`, value);
+		requirePositiveInteger(`combatLimits.${name}`, value);
 	}
 }
 
@@ -255,8 +181,7 @@ export class WeaponConfigRegistry {
 		limits: Readonly<CombatLimits> = COMBAT_LIMITS,
 		version: number = COMBAT_CONFIG_VERSION,
 	) {
-		requireInteger('combatConfigVersion', version);
-		requireFinitePositive('combatConfigVersion', version);
+		requirePositiveInteger('combatConfigVersion', version);
 		validateLimits(limits);
 		const entries = new Map<WeaponKind, Readonly<WeaponConfig>>();
 		for (const config of configs) {

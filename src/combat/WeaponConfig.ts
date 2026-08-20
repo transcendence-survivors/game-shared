@@ -1,30 +1,18 @@
 import type { WeaponKind } from '../utils/Types';
 
-export interface WeaponLevelScaling {
-	damage: number;
-	attackRate: number;
-	range: number;
-	duration: number;
-	size?: number;
-	speed?: number;
-	quantity?: number;
-	penetration?: number;
-}
-
-export interface WeaponBonusAffinity {
+interface WeaponBonusAffinity {
 	damage: number;
 	attackRate: number;
 	range: number;
 	size: number;
 }
 
-export interface BaseWeaponConfig {
+interface BaseWeaponConfig {
 	kind: WeaponKind;
 	maxLevel: number;
 	baseDamage: number;
 	baseAttackRate: number;
 	maxActiveEntities: number;
-	levelScaling: readonly WeaponLevelScaling[];
 	bonusAffinity: WeaponBonusAffinity;
 }
 

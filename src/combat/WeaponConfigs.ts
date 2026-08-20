@@ -1,23 +1,11 @@
-import type {
-	CombatLimits,
-	WeaponConfig,
-	WeaponLevelScaling,
-} from './WeaponConfig';
+import type { CombatLimits, WeaponConfig } from './WeaponConfig';
 
 export const COMBAT_CONFIG_VERSION = 1;
 
-export const DEFAULT_WEAPON_LEVEL_SCALING = [
-	{ damage: 1, attackRate: 1, range: 1, duration: 1 },
-	{ damage: 1.2, attackRate: 1, range: 1, duration: 1 },
-	{ damage: 1.2, attackRate: 1.15, range: 1, duration: 1 },
-	{ damage: 1.45, attackRate: 1.15, range: 1.15, duration: 1 },
-	{ damage: 1.7, attackRate: 1.3, range: 1.15, duration: 1.2 },
-] as const satisfies readonly WeaponLevelScaling[];
-
 export const COMBAT_LIMITS = {
 	maxPlayers: 4,
-	maxWeaponsPerPlayer: 5,
-	maxWeaponLevel: 5,
+	maxWeaponsPerPlayer: 3,
+	maxWeaponLevel: 40,
 	maxFinalAttackRate: 8,
 	maxProjectilesPerPlayer: 32,
 	maxCombatEntitiesPerRoom: 128,
@@ -37,35 +25,33 @@ export const WEAPON_CONFIGS = [
 	{
 		kind: 'aura',
 		behavior: 'aura',
-		maxLevel: 5,
+		maxLevel: 40,
 		baseDamage: 5,
 		baseAttackRate: 1,
 		baseRadius: 6,
 		baseHeight: 3,
 		maxActiveEntities: 1,
 		bonusAffinity: { ...FULL_AFFINITY, attackRate: 0.8 },
-		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
 		kind: 'sword',
 		behavior: 'sector',
-		maxLevel: 5,
+		maxLevel: 40,
 		baseDamage: 18,
 		baseAttackRate: 1.25,
 		baseRange: 11.25,
-		baseKnockback: 3,
+		baseKnockback: 4,
 		totalAngleDegrees: 180,
 		targetHitboxRadius: 0.75,
 		effectLifetimeS: 0.25,
 		hitboxHeight: 2.4,
 		maxActiveEntities: 2,
 		bonusAffinity: { ...FULL_AFFINITY, range: 0.65 },
-		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
 		kind: 'axe',
 		behavior: 'stationary-projectile',
-		maxLevel: 5,
+		maxLevel: 40,
 		baseDamage: 12,
 		baseAttackRate: 0.25,
 		baseProjectileSpeed: 14,
@@ -78,12 +64,11 @@ export const WEAPON_CONFIGS = [
 		baseActiveDurationS: 3,
 		maxActiveEntities: 2,
 		bonusAffinity: { ...FULL_AFFINITY, attackRate: 0.5, size: 1.25 },
-		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
 		kind: 'staff',
 		behavior: 'targeted-projectile',
-		maxLevel: 5,
+		maxLevel: 40,
 		baseDamage: 24,
 		baseAttackRate: 0.65,
 		baseAcquisitionRange: 30,
@@ -94,12 +79,11 @@ export const WEAPON_CONFIGS = [
 		penetration: 0,
 		maxActiveEntities: 4,
 		bonusAffinity: { ...FULL_AFFINITY, range: 1.25 },
-		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 	{
 		kind: 'bow',
 		behavior: 'spread-projectile',
-		maxLevel: 5,
+		maxLevel: 40,
 		baseDamage: 10,
 		baseAttackRate: 1,
 		projectileCount: 3,
@@ -113,6 +97,5 @@ export const WEAPON_CONFIGS = [
 		penetration: 0,
 		maxActiveEntities: 12,
 		bonusAffinity: { ...FULL_AFFINITY, damage: 0.8, attackRate: 1.2 },
-		levelScaling: DEFAULT_WEAPON_LEVEL_SCALING,
 	},
 ] as const satisfies readonly WeaponConfig[];
