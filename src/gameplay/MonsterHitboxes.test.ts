@@ -3,9 +3,11 @@ import { BOSS_KINDS, MONSTER_KINDS } from '../utils/Constants';
 import {
 	BOSS_MODEL_SCALE,
 	DEFAULT_MONSTER_HITBOX_RADIUS,
+	ELITE_MODEL_SCALE,
+	MONSTER_MODEL_SCALE,
 	MONSTER_HITBOX_PROFILES,
 	getMonsterCompoundHitboxes,
-	getMonsterHitboxRadius,
+	getMonsterHitbox,
 } from './MonsterHitboxes';
 
 describe('monster hitboxes', () => {
@@ -46,14 +48,40 @@ describe('monster hitboxes', () => {
 	});
 
 	test('applies the visual boss scale and keeps a safe fallback', () => {
-		expect(getMonsterHitboxRadius('grunt', false)).toBe(
-			MONSTER_HITBOX_PROFILES.grunt.bounds[0],
+		expect(MONSTER_MODEL_SCALE).toBe(0.5);
+		expect(BOSS_MODEL_SCALE).toBe(4);
+		expect(ELITE_MODEL_SCALE).toBe(2);
+		expect(getMonsterHitbox('grunt', false).radius).toBe(
+			MONSTER_HITBOX_PROFILES.grunt.bounds[0] * MONSTER_MODEL_SCALE,
 		);
-		expect(getMonsterHitboxRadius('gorvath', true)).toBeCloseTo(
-			MONSTER_HITBOX_PROFILES.gorvath.bounds[0] * BOSS_MODEL_SCALE,
+		expect(getMonsterHitbox('grunt', false, ELITE_MODEL_SCALE).radius).toBe(
+			MONSTER_HITBOX_PROFILES.grunt.bounds[0] *
+				MONSTER_MODEL_SCALE *
+				ELITE_MODEL_SCALE,
 		);
-		expect(getMonsterHitboxRadius('unknown', false)).toBe(
-			DEFAULT_MONSTER_HITBOX_RADIUS,
+		expect(getMonsterHitbox('gorvath', true).radius).toBeCloseTo(
+			MONSTER_HITBOX_PROFILES.gorvath.bounds[0] *
+				MONSTER_MODEL_SCALE *
+				BOSS_MODEL_SCALE,
+		);
+		expect(getMonsterHitbox('unknown', false).radius).toBe(
+			DEFAULT_MONSTER_HITBOX_RADIUS * MONSTER_MODEL_SCALE,
+		);
+	});
+
+	test('rewrites caller-owned primitives without replacing them', () => {
+		const output = getMonsterCompoundHitboxes(
+			'grunt',
+			false,
+			'idle',
+			0,
+			[],
+		);
+		const firstPart = output[0];
+		getMonsterCompoundHitboxes('grunt', false, 'walk', 0.25, output);
+		expect(output[0]).toBe(firstPart);
+		expect(output).toEqual(
+			getMonsterCompoundHitboxes('grunt', false, 'walk', 0.25),
 		);
 	});
 });

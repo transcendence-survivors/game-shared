@@ -6,8 +6,10 @@ import {
 	doesMovingSphereHitSphere,
 	doesMovingSphereHitVerticalCylinder,
 	doesSweptBoxHitVerticalCylinder,
-	monsterHitboxCylinder,
+	monsterHitboxPrimitives,
+	type MonsterWorldHitbox,
 } from './CombatGeometry3d';
+import type { MonsterHitboxPrimitive } from './MonsterHitboxes';
 
 const monster = { x: 0, y: 1, z: 0, radius: 1, height: 2 };
 
@@ -121,17 +123,61 @@ describe('3D combat geometry', () => {
 			hitboxOffsetY: 2,
 			hitboxOffsetZ: 0,
 		};
-		expect(monsterHitboxCylinder(source)).toMatchObject({
+		expect(monsterHitboxPrimitives(source)[0]).toMatchObject({
 			x: 11,
 			y: 4,
 			z: 20,
 		});
-		const turned = monsterHitboxCylinder({
+		const turned = monsterHitboxPrimitives({
 			...source,
 			rotationY: Math.PI / 2,
-		});
+		})[0];
 		expect(turned.x).toBeCloseTo(10);
 		expect(turned.y).toBe(4);
 		expect(turned.z).toBeCloseTo(19);
+	});
+
+	test('reuses world and posed hitbox buffers', () => {
+		const source = {
+			x: 1,
+			y: 2,
+			z: 3,
+			kind: 'grunt',
+			isBoss: false,
+			rotationY: 0,
+			hitboxRadius: 1,
+			hitboxHeight: 2,
+			hitboxOffsetX: 0,
+			hitboxOffsetY: 1,
+			hitboxOffsetZ: 0,
+			animState: 'idle' as const,
+		};
+		const world: MonsterWorldHitbox[] = [];
+		const posed: MonsterHitboxPrimitive[] = [];
+		monsterHitboxPrimitives(source, 0, world, posed);
+		const firstPart = world[0];
+		monsterHitboxPrimitives(source, 0.25, world, posed);
+		expect(world[0]).toBe(firstPart);
+		expect(world).toEqual(monsterHitboxPrimitives(source, 0.25));
+	});
+
+	test('poses hitboxes relative to the current animation state start', () => {
+		const source = {
+			x: 0,
+			y: 0,
+			z: 0,
+			kind: 'grunt',
+			isBoss: false,
+			rotationY: 0,
+			hitboxRadius: 1,
+			hitboxHeight: 2,
+			hitboxOffsetX: 0,
+			hitboxOffsetY: 1,
+			hitboxOffsetZ: 0,
+			animState: 'walk' as const,
+		};
+		expect(
+			monsterHitboxPrimitives({ ...source, animStartedAtS: 10 }, 10.25),
+		).toEqual(monsterHitboxPrimitives(source, 0.25));
 	});
 });

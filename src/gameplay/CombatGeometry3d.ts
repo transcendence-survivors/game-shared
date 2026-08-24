@@ -2,14 +2,11 @@ import { isCircleInSector } from './CombatGeometry';
 import {
 	MONSTER_HITBOX_PROFILES,
 	getMonsterCompoundHitboxes,
+	type MonsterHitboxPrimitive,
 } from './MonsterHitboxes';
-import type { MonsterAnimState } from '../utils/Types';
+import type { MonsterAnimState, Vec3d } from '../utils/Types';
 
-export interface Vec3Like {
-	x: number;
-	y: number;
-	z: number;
-}
+export interface Vec3Like extends Vec3d {}
 export interface VerticalCylinder extends Vec3Like {
 	radius: number;
 	height: number;
@@ -17,6 +14,11 @@ export interface VerticalCylinder extends Vec3Like {
 export type MonsterWorldHitbox =
 	| (Vec3Like & { shape: 'sphere'; radius: number })
 	| (VerticalCylinder & { shape: 'cylinder' });
+type HitboxBuffer = Vec3Like & {
+	shape: MonsterWorldHitbox['shape'];
+	radius: number;
+	height?: number;
+};
 
 export interface MonsterCylinderSource extends Vec3Like {
 	kind: string;
@@ -28,79 +30,92 @@ export interface MonsterCylinderSource extends Vec3Like {
 	hitboxOffsetY: number;
 	hitboxOffsetZ: number;
 	animState?: MonsterAnimState;
-}
-
-function localHitboxCenter(
-	monster: Pick<MonsterCylinderSource, 'x' | 'y' | 'z' | 'rotationY'>,
-	offsetX: number,
-	offsetY: number,
-	offsetZ: number,
-): Vec3Like {
-	// Les offsets GLB sont déjà exprimés dans le repère visuel retourné :
-	// ne pas leur réappliquer le demi-tour utilisé pour orienter le modèle.
-	const angle = monster.rotationY;
-	const sin = Math.sin(angle);
-	const cos = Math.cos(angle);
-	return {
-		x: monster.x + offsetX * cos + offsetZ * sin,
-		y: monster.y + offsetY,
-		z: monster.z + offsetZ * cos - offsetX * sin,
-	};
-}
-
-/** Cylindre de secours transformé dans le même repère que le modèle visible. */
-export function monsterHitboxCylinder(
-	monster: MonsterCylinderSource,
-): VerticalCylinder {
-	const center = localHitboxCenter(
-		monster,
-		monster.hitboxOffsetX,
-		monster.hitboxOffsetY,
-		monster.hitboxOffsetZ,
-	);
-	return {
-		...center,
-		radius: monster.hitboxRadius,
-		height: monster.hitboxHeight,
-	};
-}
-
-/** Volumes corporels locaux transformés dans le monde; une sphère garde hauteur = diamètre. */
-export function monsterHitboxCylinders(
-	monster: MonsterCylinderSource,
-	animationTimeS = 0,
-): VerticalCylinder[] {
-	if (!Object.hasOwn(MONSTER_HITBOX_PROFILES, monster.kind))
-		return [monsterHitboxCylinder(monster)];
-	return getMonsterCompoundHitboxes(
-		monster.kind,
-		monster.isBoss,
-		monster.animState,
-		animationTimeS,
-	).map((part) => ({
-		...localHitboxCenter(monster, part.offsetX, part.offsetY, part.offsetZ),
-		radius: part.radius,
-		height: part.height,
-	}));
+	animStartedAtS?: number;
+	sizeMultiplier?: number;
 }
 
 export function monsterHitboxPrimitives(
 	monster: MonsterCylinderSource,
 	animationTimeS = 0,
+	output: MonsterWorldHitbox[] = [],
+	posedParts: MonsterHitboxPrimitive[] = [],
+	transform?: Pick<MonsterCylinderSource, 'x' | 'y' | 'z' | 'rotationY'>,
 ): MonsterWorldHitbox[] {
 	if (!Object.hasOwn(MONSTER_HITBOX_PROFILES, monster.kind))
-		return [{ ...monsterHitboxCylinder(monster), shape: 'cylinder' }];
-	return getMonsterCompoundHitboxes(
+		return writeFallbackMonsterHitbox(monster, output, transform);
+	getMonsterCompoundHitboxes(
 		monster.kind,
 		monster.isBoss,
-		monster.animState,
-		animationTimeS,
-	).map((part) => ({
-		...localHitboxCenter(monster, part.offsetX, part.offsetY, part.offsetZ),
-		shape: part.shape,
-		radius: part.radius,
-		...(part.shape === 'cylinder' ? { height: part.height } : {}),
-	})) as MonsterWorldHitbox[];
+		monster.animState ?? 'idle',
+		Math.max(0, animationTimeS - (monster.animStartedAtS ?? 0)),
+		posedParts,
+		monster.sizeMultiplier ?? 1,
+	);
+	output.length = posedParts.length;
+	const position = transform ?? monster;
+	const angle = position.rotationY;
+	const sin = Math.sin(angle);
+	const cos = Math.cos(angle);
+	for (let index = 0; index < posedParts.length; index++) {
+		const part = posedParts[index];
+		const x = position.x + part.offsetX * cos + part.offsetZ * sin;
+		const y = position.y + part.offsetY;
+		const z = position.z + part.offsetZ * cos - part.offsetX * sin;
+		writeWorldHitbox(
+			output,
+			index,
+			part.shape,
+			x,
+			y,
+			z,
+			part.radius,
+			part.shape === 'cylinder' ? part.height : undefined,
+		);
+	}
+	return output;
+}
+
+function writeFallbackMonsterHitbox(
+	monster: MonsterCylinderSource,
+	output: MonsterWorldHitbox[],
+	transform?: Pick<MonsterCylinderSource, 'x' | 'y' | 'z' | 'rotationY'>,
+): MonsterWorldHitbox[] {
+	const position = transform ?? monster;
+	const sin = Math.sin(position.rotationY);
+	const cos = Math.cos(position.rotationY);
+	output.length = 1;
+	writeWorldHitbox(
+		output,
+		0,
+		'cylinder',
+		position.x + monster.hitboxOffsetX * cos + monster.hitboxOffsetZ * sin,
+		position.y + monster.hitboxOffsetY,
+		position.z + monster.hitboxOffsetZ * cos - monster.hitboxOffsetX * sin,
+		monster.hitboxRadius,
+		monster.hitboxHeight,
+	);
+	return output;
+}
+
+function writeWorldHitbox(
+	output: MonsterWorldHitbox[],
+	index: number,
+	shape: MonsterWorldHitbox['shape'],
+	x: number,
+	y: number,
+	z: number,
+	radius: number,
+	height?: number,
+): void {
+	const target = (output[index] ?? {}) as HitboxBuffer;
+	target.shape = shape;
+	target.x = x;
+	target.y = y;
+	target.z = z;
+	target.radius = radius;
+	if (height === undefined) delete target.height;
+	else target.height = height;
+	output[index] = target as MonsterWorldHitbox;
 }
 
 function verticalOverlap(
@@ -128,14 +143,39 @@ export function doesSphereHitVerticalCylinder(
 	sphere: Vec3Like & { radius: number },
 	cylinder: VerticalCylinder,
 ): boolean {
-	const dx = sphere.x - cylinder.x;
-	const dz = sphere.z - cylinder.z;
+	return doesSphereHitVerticalCylinderAt(
+		sphere.x,
+		sphere.y,
+		sphere.z,
+		sphere.radius,
+		cylinder,
+	);
+}
+
+function doesSphereHitVerticalCylinderAt(
+	x: number,
+	y: number,
+	z: number,
+	radius: number,
+	cylinder: VerticalCylinder,
+): boolean {
+	const dx = x - cylinder.x;
+	const dz = z - cylinder.z;
 	const radialGap = Math.max(0, Math.hypot(dx, dz) - cylinder.radius);
 	const verticalGap = Math.max(
 		0,
-		Math.abs(sphere.y - cylinder.y) - cylinder.height / 2,
+		Math.abs(y - cylinder.y) - cylinder.height / 2,
 	);
-	return radialGap ** 2 + verticalGap ** 2 <= sphere.radius ** 2;
+	return radialGap ** 2 + verticalGap ** 2 <= radius ** 2;
+}
+
+export function doesVerticalCylinderHitMonsterPart(
+	cylinder: VerticalCylinder,
+	target: MonsterWorldHitbox,
+): boolean {
+	return target.shape === 'sphere'
+		? doesSphereHitVerticalCylinder(target, cylinder)
+		: doVerticalCylindersIntersect(cylinder, target);
 }
 
 export function doesMovingSphereHitVerticalCylinder(
@@ -147,32 +187,23 @@ export function doesMovingSphereHitVerticalCylinder(
 	const vx = end.x - start.x;
 	const vy = end.y - start.y;
 	const vz = end.z - start.z;
-	const length2 = vx * vx + vy * vy + vz * vz;
-	const t =
-		length2 <= Number.EPSILON
-			? 0
-			: Math.max(
-					0,
-					Math.min(
-						1,
-						((cylinder.x - start.x) * vx +
-							(cylinder.y - start.y) * vy +
-							(cylinder.z - start.z) * vz) /
-							length2,
-					),
-				);
+	const t = closestSegmentParameter(start, vx, vy, vz, cylinder);
 	return (
-		doesSphereHitVerticalCylinder(
-			{
-				x: start.x + vx * t,
-				y: start.y + vy * t,
-				z: start.z + vz * t,
-				radius,
-			},
+		doesSphereHitVerticalCylinderAt(
+			start.x + vx * t,
+			start.y + vy * t,
+			start.z + vz * t,
+			radius,
 			cylinder,
 		) ||
-		doesSphereHitVerticalCylinder({ ...start, radius }, cylinder) ||
-		doesSphereHitVerticalCylinder({ ...end, radius }, cylinder)
+		doesSphereHitVerticalCylinderAt(
+			start.x,
+			start.y,
+			start.z,
+			radius,
+			cylinder,
+		) ||
+		doesSphereHitVerticalCylinderAt(end.x, end.y, end.z, radius, cylinder)
 	);
 }
 
@@ -185,24 +216,33 @@ export function doesMovingSphereHitSphere(
 	const vx = end.x - start.x;
 	const vy = end.y - start.y;
 	const vz = end.z - start.z;
-	const length2 = vx * vx + vy * vy + vz * vz;
-	const t =
-		length2 <= Number.EPSILON
-			? 0
-			: Math.max(
-					0,
-					Math.min(
-						1,
-						((target.x - start.x) * vx +
-							(target.y - start.y) * vy +
-							(target.z - start.z) * vz) /
-							length2,
-					),
-				);
+	const t = closestSegmentParameter(start, vx, vy, vz, target);
 	const dx = start.x + vx * t - target.x;
 	const dy = start.y + vy * t - target.y;
 	const dz = start.z + vz * t - target.z;
 	return dx * dx + dy * dy + dz * dz <= (movingRadius + target.radius) ** 2;
+}
+
+function closestSegmentParameter(
+	start: Vec3Like,
+	vx: number,
+	vy: number,
+	vz: number,
+	target: Vec3Like,
+): number {
+	const length2 = vx * vx + vy * vy + vz * vz;
+	return length2 <= Number.EPSILON
+		? 0
+		: Math.max(
+				0,
+				Math.min(
+					1,
+					((target.x - start.x) * vx +
+						(target.y - start.y) * vy +
+						(target.z - start.z) * vz) /
+						length2,
+				),
+			);
 }
 
 export function doesSweptBoxHitVerticalCylinder(
@@ -309,4 +349,13 @@ export function doesHalfCylinderHitSphere(
 		sector.radius,
 		sector.halfAngle,
 	);
+}
+
+export function doesHalfCylinderHitMonsterPart(
+	sector: VerticalCylinder & { rotationY: number; halfAngle: number },
+	target: MonsterWorldHitbox,
+): boolean {
+	return target.shape === 'sphere'
+		? doesHalfCylinderHitSphere(sector, target)
+		: doesHalfCylinderHitVerticalCylinder(sector, target);
 }
