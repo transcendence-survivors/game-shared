@@ -1,12 +1,8 @@
 import type { World } from '../world/World';
+import type { Vec3d } from '../utils/Types';
 
-export interface SpawnPoint {
-	x: number;
-	y: number;
-	z: number;
-}
+interface SpawnPoint extends Vec3d {}
 
-/** Voisins orthogonaux. */
 const DIRS: ReadonlyArray<readonly [number, number]> = [
 	[1, 0],
 	[-1, 0],
@@ -14,43 +10,25 @@ const DIRS: ReadonlyArray<readonly [number, number]> = [
 	[0, -1],
 ];
 
-/**
- * Confort d'une cellule pour un joueur posé sur son sol (y = palier * STEP) :
- * plus le score est haut, plus la case est dégagée. On récompense les voisins
- * de même palier (sol plat) et on autorise les descentes / rampes montantes,
- * exactement comme la résolution de collision. Un voisin infranchissable
- * (falaise > 1 palier ou marche sans rampe) rapporte 0.
- *
- * Score 8 = plateau parfaitement plat ; 0 = cuvette dont on ne peut sortir,
- * c'est-à-dire une case où le joueur serait « bloqué dans un mur ».
- */
+// Score de 0 (cuvette bloquante) à 8 (plateau plat).
 function openness(world: World, gx: number, gz: number): number {
 	const here = world.tier(gx, gz);
 	let score = 0;
 	for (const [dx, dz] of DIRS) {
 		const to = world.tier(gx + dx, gz + dz);
 		if (to === here) {
-			score += 2; // sol plat, déplacement libre
+			score += 2;
 		} else if (to < here) {
-			score += 1; // on peut toujours descendre
+			score += 1;
 		} else if (to === here + 1) {
 			const ramp = world.rampDir(gx, gz);
-			if (ramp && ramp[0] === dx && ramp[1] === dz) score += 1; // rampe
+			if (ramp && ramp[0] === dx && ramp[1] === dz) score += 1;
 		}
 	}
 	return score;
 }
 
-/**
- * Cherche une position de spawn sûre pour un joueur.
- *
- * On balaie les cellules contenues dans le rayon `radius` autour du centre de
- * zone (boundX, boundZ) et on retient la plus dégagée (voir {@link openness}),
- * en départageant par la proximité au point préféré (preferX, preferZ). La
- * position renvoyée est centrée sur la cellule et calée sur la hauteur du sol,
- * si bien que le joueur n'apparaît jamais enterré dans un mur ni coincé dans
- * une cuvette tant qu'une case dégagée existe dans la zone.
- */
+// Retient la cellule sûre la plus dégagée, puis la plus proche du point préféré.
 export function findSpawnPoint(
 	world: World,
 	preferX: number,
@@ -76,7 +54,6 @@ export function findSpawnPoint(
 		const cx = (gx + 0.5) * CELL;
 		for (let gz = gzMin; gz <= gzMax; gz++) {
 			const cz = (gz + 0.5) * CELL;
-			// Rester dans le rayon d'accès (mesuré au centre de la case).
 			const bdx = cx - boundX;
 			const bdz = cz - boundZ;
 			if (bdx * bdx + bdz * bdz > r2) continue;
