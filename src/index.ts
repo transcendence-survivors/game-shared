@@ -1,30 +1,39 @@
 export type {
 	Vec3d,
 	Vec2d,
+	ChunkCoordinates,
+	ProjectileDirection,
 	MoveInput,
 	MonsterDamageEvent,
 	CombatImpactEvent,
 	MovementState,
-	VerticalMove,
-	HorizontalMove,
+	MovementBoundary,
 	MonsterKind,
 	MonsterAnimState,
 	BossKind,
-	StatMultipliers,
-	MonsterStats,
+	MonsterRank,
+	MonsterRole,
+	MonsterAiKind,
+	MonsterRuntimeStats,
 	WeaponKind,
 	CombatEntityKind,
-	CombatEntityPhase,
 	CombatHitboxShape,
 	SelectUpgradeInput,
 	WorldSeedMessage,
-	GameOverMessage,
 	UpgradeOption,
+	UpgradeIcon,
+	UpgradeRarity,
+	UpgradeCategory,
 } from './utils/Types';
 
-export { resolveTerrainCollision } from './gameplay/Collisions';
+export { nextPowerOfTwoCapacity } from './utils/Capacity';
 
-export { findSpawnPoint, type SpawnPoint } from './gameplay/Spawn';
+export {
+	clampPositionToCircle,
+	resolveTerrainCollision,
+} from './gameplay/Collisions';
+
+export { findSpawnPoint } from './gameplay/Spawn';
 
 export {
 	Player,
@@ -38,8 +47,9 @@ export {
 export {
 	ClientMessage,
 	ServerMessage,
-	type ClientMessageName,
-	type ServerMessageName,
+	MOVE_INPUT_BOOLEAN_FIELDS,
+	GAME_ROOM_TYPE,
+	normalizeRoomName,
 } from './protocol';
 
 export { Life } from './schemas/Life';
@@ -48,86 +58,98 @@ export { Experience, xpRequiredForLevel } from './schemas/Experience';
 
 export {
 	rollUpgradeOptions,
+	rollUpgradeRarity,
 	canApplyUpgrade,
 	applyUpgrade,
 } from './gameplay/RollUpgrades';
 
 export {
-	UPGRADE_POOL,
-	weaponUpgradeDefinitions,
+	TOME_DEFINITIONS,
+	TOME_SLOT_LIMIT,
+	TOME_MAX_LEVEL,
+	RARITY_CONFIG,
+	WEAPON_TRAIT_POOLS,
+	WEAPON_ICONS,
+	WEAPON_NAMES,
+	toUpgradeOption,
 	type UpgradeDef,
-	type UpgradeEffect,
-	type GlobalUpgradeStat,
+	type TomeStat,
+	type WeaponUpgradeStat,
+	type WeaponUpgradeBonus,
 } from './utils/Upgrades';
 
 export {
+	TAU,
 	MAX_DT,
 	SPEED,
-	ROTATION_SPEED,
 	GRAVITY,
 	JUMP_SPEED,
-	SUN_H,
 	ACCESS_RADIUS,
+	PLAYER_ACCESS_RADIUS,
+	CHUNK_DISPLAY_RADIUS,
 	RAY_SPEED,
 	RAY_DIR_X,
 	RAY_DIR_Z,
-	TICK_RATE,
-	FIXED_DT,
 	PLAYER_HB_RADIUS,
 	PLAYER_STEP_UP,
 	PLAYER_MAX_LIFE,
 	PLAYER_AURA_RADIUS,
-	PLAYER_AURA_DAMAGE,
 	PLAYER_AURA_ATTACK_SPEED,
 	WEAPON_KINDS,
+	STARTER_WEAPON_KINDS,
 	COMBAT_ENTITY_KINDS,
-	COMBAT_ENTITY_PHASES,
 	COMBAT_HITBOX_SHAPES,
 	XP_BASE_TO_LEVEL,
 	XP_LEVEL_GROWTH,
+	UPGRADE_CHOICE_COUNT,
+	UPGRADE_RARITIES,
 	MONSTER_KINDS,
 	BOSS_KINDS,
 	MONSTER_BASE_LIFE,
 	MONSTER_BASE_DAMAGE,
 	MONSTER_BASE_XP_REWARD,
-	STAT_BUDGET,
-	MIN_STAT_MULTIPLIER,
-	BOSS_STAT_SCALE,
-	DIFFICULTY_GROWTH_PER_MINUTE,
-	ACTIVE_MONSTER_KIND_COUNT,
-	MONSTER_ROTATION_INTERVAL_S,
-	MONSTER_BOOST_INTERVAL_S,
 	MONSTER_BASE_POPULATION,
-	MONSTER_POPULATION_PER_MINUTE,
 	MONSTER_MAX_POPULATION,
-	MONSTER_SPAWN_MIN_DIST,
-	MONSTER_SPAWN_MAX_DIST,
+	MONSTER_BOSS_SLOT_CAPACITY,
+	STATE_ENCODER_BUFFER_SIZE,
 	MONSTER_MOVE_SPEED,
 	MONSTER_ATTACK_RANGE,
-	BOSS_ATTACK_RANGE,
 	MONSTER_ATTACK_COOLDOWN_S,
 } from './utils/Constants';
 
-export { World, clamp01, type WorldColor } from './world/World';
+export {
+	World,
+	clamp01,
+	TERRAIN_SUBDIVISIONS_PER_CELL,
+	type WorldColor,
+	type WorldNormal,
+	type WorldSurfaceSample,
+} from './world/World';
 
 export {
-	applyVerticalMovement,
-	applyHorizontalMovement,
+	createMoveInput,
+	createMovementState,
 	simulatePlayerMovement,
 	getCameraYaw,
-	clampToRadius,
-	isInsideRay,
 } from './gameplay/Movements';
 
 export {
-	difficultyFactor,
-	splitStatBudget,
-	computeMonsterStats,
+	MONSTER_DIRECTOR_CONFIG,
+	difficultyStageAt,
+	computeArchetypeStats,
 	targetPopulation,
-	pickDistinct,
+	bossTimeAt,
 } from './gameplay/Difficulty';
 
-export { nearestIndex, chaseStep, type ChaseStep } from './gameplay/MonsterAi';
+export {
+	MONSTER_DEFINITIONS,
+	getMonsterDefinition,
+	isBossKind,
+	normalMonsterDefinitions,
+	type MonsterDefinition,
+} from './gameplay/MonsterCatalog';
+
+export { chaseStep, type ChaseStep } from './gameplay/MonsterAi';
 
 export {
 	DEFAULT_MONSTER_HITBOX_RADIUS,
@@ -135,9 +157,10 @@ export {
 	DEFAULT_MONSTER_HITBOX_OFFSET_X,
 	DEFAULT_MONSTER_HITBOX_OFFSET_Y,
 	DEFAULT_MONSTER_HITBOX_OFFSET_Z,
+	MONSTER_MODEL_SCALE,
 	BOSS_MODEL_SCALE,
+	ELITE_MODEL_SCALE,
 	MONSTER_HITBOX_PROFILES,
-	getMonsterHitboxRadius,
 	getMonsterHitbox,
 	getMonsterCompoundHitboxes,
 	type MonsterHitboxPrimitive,
@@ -146,25 +169,21 @@ export {
 export {
 	distanceSquared,
 	normalizeAngle,
-	rotateVector,
 	forwardVector,
-	isPointInCircle,
 	isCircleInSector,
-	distanceSquaredToSegment,
-	doesMovingCircleHitCircle,
 } from './gameplay/CombatGeometry';
 
 export {
 	doVerticalCylindersIntersect,
 	doesSphereHitVerticalCylinder,
+	doesVerticalCylinderHitMonsterPart,
 	doesMovingSphereHitVerticalCylinder,
 	doesMovingSphereHitSphere,
 	doesSweptBoxHitVerticalCylinder,
 	doesSweptBoxHitSphere,
 	doesHalfCylinderHitVerticalCylinder,
 	doesHalfCylinderHitSphere,
-	monsterHitboxCylinder,
-	monsterHitboxCylinders,
+	doesHalfCylinderHitMonsterPart,
 	monsterHitboxPrimitives,
 	type VerticalCylinder,
 	type MonsterCylinderSource,
@@ -172,9 +191,6 @@ export {
 } from './gameplay/CombatGeometry3d';
 
 export type {
-	WeaponLevelScaling,
-	WeaponBonusAffinity,
-	BaseWeaponConfig,
 	AuraWeaponConfig,
 	SwordWeaponConfig,
 	AxeWeaponConfig,
@@ -186,7 +202,6 @@ export type {
 
 export {
 	COMBAT_CONFIG_VERSION,
-	DEFAULT_WEAPON_LEVEL_SCALING,
 	COMBAT_LIMITS,
 	WEAPON_CONFIGS,
 } from './combat/WeaponConfigs';
