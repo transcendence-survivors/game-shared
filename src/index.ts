@@ -120,6 +120,7 @@ export {
 export {
 	World,
 	clamp01,
+	lerp,
 	TERRAIN_SUBDIVISIONS_PER_CELL,
 	type WorldColor,
 	type WorldNormal,

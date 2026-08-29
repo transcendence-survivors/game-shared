@@ -1,4 +1,5 @@
 import { makeNoise2D, type Noise2D } from './Noise';
+import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
 export interface WorldColor {
@@ -7,7 +8,7 @@ export interface WorldColor {
 	b: number;
 }
 
-export interface WorldNormal extends Vec3d {}
+export type WorldNormal = Vec3d;
 
 /** Height and exact triangle normal of the rendered continuous terrain. */
 export interface WorldSurfaceSample extends WorldNormal {
@@ -24,12 +25,6 @@ interface SurfaceCellHeights {
 /** The rendered terrain uses the same grid resolution for every chunk. */
 export const TERRAIN_SUBDIVISIONS_PER_CELL = 4;
 
-const DIRS: ReadonlyArray<readonly [number, number]> = [
-	[1, 0],
-	[-1, 0],
-	[0, 1],
-	[0, -1],
-];
 const GRASS = { r: 0.36, g: 0.55, b: 0.27 };
 const DARK_GRASS = { r: 0.3, g: 0.48, b: 0.23 };
 const ROCK = { r: 0.5, g: 0.47, b: 0.43 };
@@ -43,12 +38,12 @@ function keyOf(gx: number, gz: number): number {
 	return (gx + 0x800000) * 0x1000000 + (gz + 0x800000);
 }
 
-function lerp(a: number, b: number, t: number): number {
+export function lerp(a: number, b: number, t: number): number {
 	return a + (b - a) * t;
 }
 
-export function clamp01(x: number): number {
-	return x < 0 ? 0 : x > 1 ? 1 : x;
+export function clamp01(value: number): number {
+	return value < 0 ? 0 : value > 1 ? 1 : value;
 }
 
 function mixC(a: WorldColor, b: WorldColor, t: number): WorldColor {
@@ -234,8 +229,8 @@ export class World {
 		const T = this.tier(gx, gz);
 		let mask = 0;
 		let count = 0;
-		for (let index = 0; index < DIRS.length; index++) {
-			const d = DIRS[index];
+		for (let index = 0; index < CARDINAL_GRID_DIRECTIONS.length; index++) {
+			const d = CARDINAL_GRID_DIRECTIONS[index];
 			if (
 				this.tier(gx + d[0], gz + d[1]) === T + 1 &&
 				this.tier(gx - d[0], gz - d[1]) === T
@@ -248,9 +243,9 @@ export class World {
 		const h = this.hash(gx, gz);
 		if (h % 100 >= this.rampChance) return null;
 		let selected = (h >>> 8) % count;
-		for (let index = 0; index < DIRS.length; index++)
+		for (let index = 0; index < CARDINAL_GRID_DIRECTIONS.length; index++)
 			if ((mask & (1 << index)) !== 0 && selected-- === 0)
-				return DIRS[index];
+				return CARDINAL_GRID_DIRECTIONS[index];
 		return null;
 	}
 
@@ -271,7 +266,7 @@ export class World {
 		const d = this.slopeCandidate(gx, gz);
 		if (!d) return null;
 		const h = this.hash(gx, gz);
-		for (const n of DIRS) {
+		for (const n of CARDINAL_GRID_DIRECTIONS) {
 			const dn = this.slopeCandidate(gx + n[0], gz + n[1]);
 			if (
 				dn &&

@@ -1,6 +1,15 @@
 /** One complete rotation in radians. */
 export const TAU = Math.PI * 2;
 
+export const CARDINAL_GRID_DIRECTIONS: ReadonlyArray<
+	readonly [number, number]
+> = [
+	[1, 0],
+	[-1, 0],
+	[0, 1],
+	[0, -1],
+];
+
 export const MAX_DT = 0.1;
 export const SPEED = 30;
 export const GRAVITY = 60;

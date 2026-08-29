@@ -1,20 +1,14 @@
 import type { World } from '../world/World';
+import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
-interface SpawnPoint extends Vec3d {}
-
-const DIRS: ReadonlyArray<readonly [number, number]> = [
-	[1, 0],
-	[-1, 0],
-	[0, 1],
-	[0, -1],
-];
+type SpawnPoint = Vec3d;
 
 // Score de 0 (cuvette bloquante) à 8 (plateau plat).
 function openness(world: World, gx: number, gz: number): number {
 	const here = world.tier(gx, gz);
 	let score = 0;
-	for (const [dx, dz] of DIRS) {
+	for (const [dx, dz] of CARDINAL_GRID_DIRECTIONS) {
 		const to = world.tier(gx + dx, gz + dz);
 		if (to === here) {
 			score += 2;

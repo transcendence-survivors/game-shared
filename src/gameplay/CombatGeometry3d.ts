@@ -6,7 +6,7 @@ import {
 } from './MonsterHitboxes';
 import type { MonsterAnimState, Vec3d } from '../utils/Types';
 
-export interface Vec3Like extends Vec3d {}
+export type Vec3Like = Vec3d;
 export interface VerticalCylinder extends Vec3Like {
 	radius: number;
 	height: number;

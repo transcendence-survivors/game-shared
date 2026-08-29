@@ -16,8 +16,8 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"experimentalDecorators": true,
-    	"emitDecoratorMetadata": true,
+		"emitDecoratorMetadata": true,
 		"useDefineForClassFields": false
 	},
-	"include": ["src", "../client/src/map"]
+	"include": ["src"]
 }
