@@ -1,4 +1,5 @@
 import { PLAYER_HB_RADIUS, PLAYER_STEP_UP, TAU } from '../utils/Constants';
+import type { Vec2d } from '../utils/Types';
 import type { World } from '../world/World';
 
 const GROUND_EPS = 0.1;
@@ -94,7 +95,7 @@ function writeIfWalkable(
 	x: number,
 	z: number,
 	playerY: number,
-	output: { x: number; z: number },
+	output: Vec2d,
 	footprintRadius = PLAYER_HB_RADIUS,
 ): boolean {
 	if (
@@ -108,7 +109,7 @@ function writeIfWalkable(
 
 /** Keeps a player's center inside a moving circular access zone. */
 export function clampPositionToCircle(
-	position: { x: number; z: number },
+	position: Vec2d,
 	centerX: number,
 	centerZ: number,
 	radius: number,
@@ -140,9 +141,9 @@ function recoverEmbeddedPosition(
 	world: World,
 	cellX: number,
 	cellZ: number,
-	currentPos: { x: number; z: number },
+	currentPos: Vec2d,
 	playerY: number,
-	output: { x: number; z: number },
+	output: Vec2d,
 	footprintRadius = PLAYER_HB_RADIUS,
 ) {
 	const margin = footprintRadius + PROBE;
@@ -192,13 +193,13 @@ function recoverEmbeddedPosition(
 
 export function resolveTerrainCollision(
 	world: World,
-	currentPos: { x: number; z: number },
+	currentPos: Vec2d,
 	targetX: number,
 	targetZ: number,
 	playerY: number,
-	output: { x: number; z: number } = { x: 0, z: 0 },
+	output: Vec2d = { x: 0, z: 0 },
 	footprintRadius = PLAYER_HB_RADIUS,
-): { x: number; z: number } {
+): Vec2d {
 	// A smooth terrain has no cell walls to block against. Vertical movement
 	// still snaps the player to world.height() in the movement simulation.
 	if (world.isSmoothTerrain) {

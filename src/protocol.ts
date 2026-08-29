@@ -2,6 +2,7 @@ import type { MoveInput } from './utils/Types';
 
 /** Colyseus room type shared by matchmaking clients and the server. */
 export const GAME_ROOM_TYPE = 'game_room';
+export const GAME_ROOM_NAME_PROPERTY = 'roomName';
 
 /** Applies the canonical, locale-independent room-name normalization. */
 export function normalizeRoomName(name: string): string {

@@ -2,12 +2,12 @@ import type { World } from '../world/World';
 import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
-type SpawnPoint = Vec3d;
-
 // Score de 0 (cuvette bloquante) à 8 (plateau plat).
 function openness(world: World, gx: number, gz: number): number {
 	const here = world.tier(gx, gz);
 	let score = 0;
+	let ramp: ReturnType<World['rampDir']> = null;
+	let rampResolved = false;
 	for (const [dx, dz] of CARDINAL_GRID_DIRECTIONS) {
 		const to = world.tier(gx + dx, gz + dz);
 		if (to === here) {
@@ -15,7 +15,10 @@ function openness(world: World, gx: number, gz: number): number {
 		} else if (to < here) {
 			score += 1;
 		} else if (to === here + 1) {
-			const ramp = world.rampDir(gx, gz);
+			if (!rampResolved) {
+				ramp = world.rampDir(gx, gz);
+				rampResolved = true;
+			}
 			if (ramp && ramp[0] === dx && ramp[1] === dz) score += 1;
 		}
 	}
@@ -30,7 +33,7 @@ export function findSpawnPoint(
 	boundX: number,
 	boundZ: number,
 	radius: number,
-): SpawnPoint {
+): Vec3d {
 	const CELL = world.CELL;
 	const r2 = radius * radius;
 

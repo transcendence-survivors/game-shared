@@ -47,11 +47,10 @@ export function simulatePlayerMovement(
 	let x = state.x;
 	let z = state.z;
 	let rotationY = state.rotationY;
+	const dt = Math.min(input.deltaTime, MAX_DT);
 	if (input.forward || input.backward || input.left || input.right) {
 		const sin = Math.sin(input.cameraYaw);
 		const cos = Math.cos(input.cameraYaw);
-		const rightX = Math.sin(input.cameraYaw + Math.PI / 2);
-		const rightZ = Math.cos(input.cameraYaw + Math.PI / 2);
 		let moveX = 0;
 		let moveZ = 0;
 		if (input.forward) {
@@ -63,18 +62,17 @@ export function simulatePlayerMovement(
 			moveZ -= cos;
 		}
 		if (input.right) {
-			moveX += rightX;
-			moveZ += rightZ;
+			moveX += cos;
+			moveZ -= sin;
 		}
 		if (input.left) {
-			moveX -= rightX;
-			moveZ -= rightZ;
+			moveX -= cos;
+			moveZ += sin;
 		}
 		const length = Math.hypot(moveX, moveZ);
 		if (length > 0) {
 			moveX /= length;
 			moveZ /= length;
-			const dt = Math.min(input.deltaTime, MAX_DT);
 			x += moveX * speed * dt;
 			z += moveZ * speed * dt;
 			rotationY = Math.atan2(moveX, moveZ);
@@ -90,7 +88,6 @@ export function simulatePlayerMovement(
 		);
 	x = output.x;
 	z = output.z;
-	const dt = Math.min(input.deltaTime, MAX_DT);
 	let y = state.y;
 	let velocityY = state.velocityY;
 	let isGrounded = state.isGrounded;

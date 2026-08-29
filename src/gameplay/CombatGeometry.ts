@@ -26,7 +26,10 @@ export function isCircleInSector(
 	halfAngle: number,
 ): boolean {
 	if (
-		![targetRadius, rotationY, range, halfAngle].every(Number.isFinite) ||
+		!Number.isFinite(targetRadius) ||
+		!Number.isFinite(rotationY) ||
+		!Number.isFinite(range) ||
+		!Number.isFinite(halfAngle) ||
 		targetRadius < 0 ||
 		range < 0 ||
 		halfAngle < 0

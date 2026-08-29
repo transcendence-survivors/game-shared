@@ -69,11 +69,8 @@ export type CombatEntityKind = (typeof COMBAT_ENTITY_KINDS)[number];
 
 export type CombatHitboxShape = (typeof COMBAT_HITBOX_SHAPES)[number];
 
-export interface MonsterDamageEvent {
+export interface MonsterDamageEvent extends Vec3d {
 	id: string;
-	x: number;
-	y: number;
-	z: number;
 	amount: number;
 	isBoss: boolean;
 	isElite?: boolean;
@@ -95,6 +92,10 @@ export interface SelectUpgradeInput {
 
 export interface WorldSeedMessage {
 	seed: number;
+}
+
+export interface GameRoomOptions {
+	roomName: string;
 }
 
 export type MonsterKind = (typeof MONSTER_KINDS)[number];

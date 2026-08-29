@@ -6,21 +6,20 @@ import {
 } from './MonsterHitboxes';
 import type { MonsterAnimState, Vec3d } from '../utils/Types';
 
-export type Vec3Like = Vec3d;
-export interface VerticalCylinder extends Vec3Like {
+export interface VerticalCylinder extends Vec3d {
 	radius: number;
 	height: number;
 }
 export type MonsterWorldHitbox =
-	| (Vec3Like & { shape: 'sphere'; radius: number })
+	| (Vec3d & { shape: 'sphere'; radius: number })
 	| (VerticalCylinder & { shape: 'cylinder' });
-type HitboxBuffer = Vec3Like & {
+type HitboxBuffer = Vec3d & {
 	shape: MonsterWorldHitbox['shape'];
 	radius: number;
 	height?: number;
 };
 
-export interface MonsterCylinderSource extends Vec3Like {
+export interface MonsterCylinderSource extends Vec3d {
 	kind: string;
 	isBoss: boolean;
 	rotationY: number;
@@ -140,7 +139,7 @@ export function doVerticalCylindersIntersect(
 }
 
 export function doesSphereHitVerticalCylinder(
-	sphere: Vec3Like & { radius: number },
+	sphere: Vec3d & { radius: number },
 	cylinder: VerticalCylinder,
 ): boolean {
 	return doesSphereHitVerticalCylinderAt(
@@ -179,8 +178,8 @@ export function doesVerticalCylinderHitMonsterPart(
 }
 
 export function doesMovingSphereHitVerticalCylinder(
-	start: Vec3Like,
-	end: Vec3Like,
+	start: Vec3d,
+	end: Vec3d,
 	radius: number,
 	cylinder: VerticalCylinder,
 ): boolean {
@@ -208,10 +207,10 @@ export function doesMovingSphereHitVerticalCylinder(
 }
 
 export function doesMovingSphereHitSphere(
-	start: Vec3Like,
-	end: Vec3Like,
+	start: Vec3d,
+	end: Vec3d,
 	movingRadius: number,
-	target: Vec3Like & { radius: number },
+	target: Vec3d & { radius: number },
 ): boolean {
 	const vx = end.x - start.x;
 	const vy = end.y - start.y;
@@ -224,11 +223,11 @@ export function doesMovingSphereHitSphere(
 }
 
 function closestSegmentParameter(
-	start: Vec3Like,
+	start: Vec3d,
 	vx: number,
 	vy: number,
 	vz: number,
-	target: Vec3Like,
+	target: Vec3d,
 ): number {
 	const length2 = vx * vx + vy * vy + vz * vz;
 	return length2 <= Number.EPSILON
@@ -246,8 +245,8 @@ function closestSegmentParameter(
 }
 
 export function doesSweptBoxHitVerticalCylinder(
-	start: Vec3Like,
-	end: Vec3Like,
+	start: Vec3d,
+	end: Vec3d,
 	width: number,
 	height: number,
 	depth: number,
@@ -285,14 +284,14 @@ export function doesSweptBoxHitVerticalCylinder(
 }
 
 export function doesSweptBoxHitSphere(
-	start: Vec3Like,
-	end: Vec3Like,
+	start: Vec3d,
+	end: Vec3d,
 	width: number,
 	height: number,
 	depth: number,
 	directionX: number,
 	directionZ: number,
-	sphere: Vec3Like & { radius: number },
+	sphere: Vec3d & { radius: number },
 ): boolean {
 	const length = Math.hypot(directionX, directionZ) || 1;
 	const fx = directionX / length;
@@ -333,7 +332,7 @@ export function doesHalfCylinderHitVerticalCylinder(
 
 export function doesHalfCylinderHitSphere(
 	sector: VerticalCylinder & { rotationY: number; halfAngle: number },
-	sphere: Vec3Like & { radius: number },
+	sphere: Vec3d & { radius: number },
 ): boolean {
 	const verticalGap = Math.max(
 		0,

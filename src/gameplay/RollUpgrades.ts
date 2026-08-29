@@ -1,4 +1,4 @@
-import type { Player } from '../schemas/GameState';
+import { WeaponState, type Player } from '../schemas/GameState';
 import { weaponConfigRegistry } from '../combat/WeaponConfigRegistry';
 import { COMBAT_LIMITS } from '../combat/WeaponConfigs';
 import { UPGRADE_RARITIES, WEAPON_KINDS } from '../utils/Constants';
@@ -16,7 +16,6 @@ import {
 	type UpgradeDef,
 	type WeaponUpgradeBonus,
 } from '../utils/Upgrades';
-import { WeaponState } from '../schemas/GameState';
 
 type UpgradeCandidate =
 	| { kind: 'tome'; definition: TomeDefinition }

@@ -227,8 +227,9 @@ function poseMonsterHitboxPart(
 	let bobY = 0;
 	let leanZ = 0;
 	if (animState === 'walk') {
-		const gait = Math.sin(safeTime * 7);
-		const bob = Math.abs(Math.cos(safeTime * 7));
+		const gaitPhase = safeTime * 7;
+		const gait = Math.sin(gaitPhase);
+		const bob = Math.abs(Math.cos(gaitPhase));
 		swayX = gait * part.radius * (part.role === 'lower' ? 0.025 : 0.07);
 		bobY = bob * part.height * (part.role === 'lower' ? 0.015 : 0.035);
 		leanZ = part.role === 'head' ? part.radius * 0.08 : 0;
