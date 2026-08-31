@@ -45,7 +45,7 @@ export const UPGRADE_POOL: UpgradeDef[] = [
 	},
 	{
 		id: 'lifesteal_up',
-		name: 'Blood Hunger',
+		name: 'Blood Thirst',
 		description: '+2% lifesteal',
 		iconUrl: 'lifesteal',
 		apply: (player) => {
