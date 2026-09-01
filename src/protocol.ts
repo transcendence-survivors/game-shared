@@ -27,7 +27,7 @@ export const MOVE_INPUT_BOOLEAN_FIELDS = [
 ] as const satisfies readonly (keyof MoveInput)[];
 
 export const ServerMessage = {
-	WorldSeed: 'worldSeed',
+	WorldSeed: 'gameStart',
 	GameOver: 'gameOver',
 	MonsterDamage: 'monsterDamage',
 	LevelUp: 'levelUp',
