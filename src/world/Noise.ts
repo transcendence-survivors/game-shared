@@ -1,10 +1,6 @@
 export type Noise2D = (x: number, y: number) => number;
 
-/**
- * Bruit simplex 2D seedable (portage fidèle du prototype `data.html`).
- * Le générateur pseudo-aléatoire mélange une table de permutations, ce qui
- * rend le terrain reproductible pour une seed donnée.
- */
+// Bruit simplex 2D reproductible à partir de la seed.
 export function makeNoise2D(seed: number): Noise2D {
 	let s = seed >>> 0;
 	function rand(): number {

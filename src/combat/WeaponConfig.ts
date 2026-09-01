@@ -1,0 +1,90 @@
+import type { WeaponKind } from '../utils/Types';
+
+interface WeaponBonusAffinity {
+	damage: number;
+	attackRate: number;
+	range: number;
+	size: number;
+}
+
+interface BaseWeaponConfig {
+	kind: WeaponKind;
+	maxLevel: number;
+	baseDamage: number;
+	baseAttackRate: number;
+	maxActiveEntities: number;
+	bonusAffinity: WeaponBonusAffinity;
+}
+
+export interface AuraWeaponConfig extends BaseWeaponConfig {
+	kind: 'aura';
+	behavior: 'aura';
+	baseRadius: number;
+	baseHeight: number;
+}
+
+export interface SwordWeaponConfig extends BaseWeaponConfig {
+	kind: 'sword';
+	behavior: 'sector';
+	baseRange: number;
+	baseKnockback: number;
+	totalAngleDegrees: number;
+	targetHitboxRadius: number;
+	effectLifetimeS: number;
+	hitboxHeight: number;
+}
+
+export interface AxeWeaponConfig extends BaseWeaponConfig {
+	kind: 'axe';
+	behavior: 'stationary-projectile';
+	baseProjectileSpeed: number;
+	baseTravelDistance: number;
+	baseContactRadius: number;
+	baseContactHeight: number;
+	damageIntervalS: number;
+	baseActiveDurationS: number;
+}
+
+export interface StaffWeaponConfig extends BaseWeaponConfig {
+	kind: 'staff';
+	behavior: 'targeted-projectile';
+	baseAcquisitionRange: number;
+	baseProjectileSpeed: number;
+	maxTurnRateDegreesS: number;
+	collisionRadius: number;
+	maxLifetimeS: number;
+	penetration: number;
+}
+
+export interface BowWeaponConfig extends BaseWeaponConfig {
+	kind: 'bow';
+	behavior: 'spread-projectile';
+	projectileCount: number;
+	spreadAnglesDegrees: readonly number[];
+	baseProjectileSpeed: number;
+	collisionRadius: number;
+	hitboxWidth: number;
+	hitboxHeight: number;
+	hitboxDepth: number;
+	maxLifetimeS: number;
+	penetration: number;
+}
+
+export type WeaponConfig =
+	| AuraWeaponConfig
+	| SwordWeaponConfig
+	| AxeWeaponConfig
+	| StaffWeaponConfig
+	| BowWeaponConfig;
+
+export interface CombatLimits {
+	maxPlayers: number;
+	maxWeaponsPerPlayer: number;
+	maxWeaponLevel: number;
+	maxFinalAttackRate: number;
+	maxProjectilesPerPlayer: number;
+	maxCombatEntitiesPerRoom: number;
+	maxImpactEventsPerTick: number;
+	maxCatchupAttacksPerTick: number;
+	maxEntityLifetimeS: number;
+}

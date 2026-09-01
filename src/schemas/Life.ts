@@ -4,7 +4,7 @@ export class Life extends Schema {
 	@type('number') max: number;
 	@type('number') current: number;
 
-	constructor(max: number) {
+	constructor(max: number = 1) {
 		super();
 		if (!Number.isFinite(max) || max <= 0) {
 			throw new RangeError(

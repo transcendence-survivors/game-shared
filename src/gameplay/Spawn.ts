@@ -1,35 +1,31 @@
 import type { World } from '../world/World';
+import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
+import type { Vec3d } from '../utils/Types';
 
-export interface SpawnPoint {
-	x: number;
-	y: number;
-	z: number;
-}
-
-const DIRS: ReadonlyArray<readonly [number, number]> = [
-	[1, 0],
-	[-1, 0],
-	[0, 1],
-	[0, -1],
-];
-
+// Score de 0 (cuvette bloquante) à 8 (plateau plat).
 function openness(world: World, gx: number, gz: number): number {
 	const here = world.tier(gx, gz);
 	let score = 0;
-	for (const [dx, dz] of DIRS) {
+	let ramp: ReturnType<World['rampDir']> = null;
+	let rampResolved = false;
+	for (const [dx, dz] of CARDINAL_GRID_DIRECTIONS) {
 		const to = world.tier(gx + dx, gz + dz);
 		if (to === here) {
 			score += 2;
 		} else if (to < here) {
 			score += 1;
 		} else if (to === here + 1) {
-			const ramp = world.rampDir(gx, gz);
-			if (ramp && ramp[0] === dx && ramp[1] === dz) score += 1; // rampe
+			if (!rampResolved) {
+				ramp = world.rampDir(gx, gz);
+				rampResolved = true;
+			}
+			if (ramp && ramp[0] === dx && ramp[1] === dz) score += 1;
 		}
 	}
 	return score;
 }
 
+// Retient la cellule sûre la plus dégagée, puis la plus proche du point préféré.
 export function findSpawnPoint(
 	world: World,
 	preferX: number,
@@ -37,7 +33,7 @@ export function findSpawnPoint(
 	boundX: number,
 	boundZ: number,
 	radius: number,
-): SpawnPoint {
+): Vec3d {
 	const CELL = world.CELL;
 	const r2 = radius * radius;
 

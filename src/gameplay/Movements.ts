@@ -1,93 +1,122 @@
-import * as BABYLON from '@babylonjs/core';
-import { type MovementState, type MoveInput, type Vec2d } from '../utils/Types';
-import { SPEED, JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
+import {
+	type MovementBoundary,
+	type MovementState,
+	type MoveInput,
+	type Vec3d,
+} from '../utils/Types';
+import { JUMP_SPEED, MAX_DT, GRAVITY } from '../utils/Constants';
+import type { World } from '../world/World';
+import { clampPositionToCircle, resolveTerrainCollision } from './Collisions';
 
-function getForwardVector(rotationY: number): Vec2d {
-	return { x: Math.sin(rotationY), z: Math.cos(rotationY) };
+export function createMoveInput(): MoveInput {
+	return {
+		seq: 0,
+		forward: false,
+		backward: false,
+		right: false,
+		left: false,
+		jump: false,
+		deltaTime: 0,
+		cameraYaw: 0,
+	};
 }
 
-export function getCameraYaw(cameraForward: BABYLON.Vector3) {
-	cameraForward.y = 0;
-	cameraForward.normalize();
+export function createMovementState(x = 0, y = 0, z = 0): MovementState {
+	return {
+		x,
+		y,
+		z,
+		rotationY: 0,
+		velocityY: 0,
+		isGrounded: true,
+	};
+}
+
+export function getCameraYaw(cameraForward: Pick<Vec3d, 'x' | 'z'>) {
 	return Math.atan2(cameraForward.x, cameraForward.z);
 }
 
-export function applyHorizontalMovement(
+export function simulatePlayerMovement(
+	world: World,
 	state: MovementState,
 	input: MoveInput,
-	cameraYaw: number,
 	speed: number,
-): { x: number; z: number; rotationY: number } {
-	let { x, z, rotationY } = state;
-	const hasMoveInput =
-		input.forward || input.backward || input.left || input.right;
-
-	if (hasMoveInput) {
-		const forward = getForwardVector(cameraYaw);
-		const right = getForwardVector(cameraYaw + Math.PI / 2);
+	output: MovementState = { ...state },
+	boundary?: MovementBoundary,
+): MovementState {
+	let x = state.x;
+	let z = state.z;
+	let rotationY = state.rotationY;
+	const dt = Math.min(input.deltaTime, MAX_DT);
+	if (input.forward || input.backward || input.left || input.right) {
+		const sin = Math.sin(input.cameraYaw);
+		const cos = Math.cos(input.cameraYaw);
 		let moveX = 0;
 		let moveZ = 0;
 		if (input.forward) {
-			moveX += forward.x;
-			moveZ += forward.z;
+			moveX += sin;
+			moveZ += cos;
 		}
 		if (input.backward) {
-			moveX -= forward.x;
-			moveZ -= forward.z;
+			moveX -= sin;
+			moveZ -= cos;
 		}
 		if (input.right) {
-			moveX += right.x;
-			moveZ += right.z;
+			moveX += cos;
+			moveZ -= sin;
 		}
 		if (input.left) {
-			moveX -= right.x;
-			moveZ -= right.z;
+			moveX -= cos;
+			moveZ += sin;
 		}
-		const len = Math.hypot(moveX, moveZ);
-		if (len > 0) {
-			moveX /= len;
-			moveZ /= len;
-
-			const dt = Math.min(input.deltaTime, MAX_DT);
+		const length = Math.hypot(moveX, moveZ);
+		if (length > 0) {
+			moveX /= length;
+			moveZ /= length;
 			x += moveX * speed * dt;
 			z += moveZ * speed * dt;
 			rotationY = Math.atan2(moveX, moveZ);
 		}
 	}
-	return { x, z, rotationY };
-}
-
-export function applyVerticalMovement(
-	y: number,
-	velocityY: number,
-	isGrounded: boolean,
-	groundHeight: number,
-	input: MoveInput,
-): { y: number; velocityY: number; isGrounded: boolean } {
-	const dt = Math.min(input.deltaTime, MAX_DT);
+	resolveTerrainCollision(world, state, x, z, state.y, output);
+	if (boundary)
+		clampPositionToCircle(
+			output,
+			boundary.centerX,
+			boundary.centerZ,
+			boundary.radius,
+		);
+	x = output.x;
+	z = output.z;
+	let y = state.y;
+	let velocityY = state.velocityY;
+	let isGrounded = state.isGrounded;
 	if (isGrounded && input.jump) {
 		velocityY = JUMP_SPEED;
 		isGrounded = false;
 	}
 	if (!isGrounded) {
+		// Exact constant-acceleration integration is invariant to packet batching:
+		// one 30 Hz server step now matches two 60 Hz prediction steps.
+		y += velocityY * dt - 0.5 * GRAVITY * dt * dt;
 		velocityY -= GRAVITY * dt;
 	}
-	y += velocityY * dt;
-	if (y <= groundHeight) {
+	const groundHeight = world.height(x, z);
+	if (world.isSmoothTerrain && isGrounded) {
+		// Follow the continuous slope while walking instead of leaving a small
+		// gap when the player moves between terrain samples.
+		y = groundHeight;
+		velocityY = 0;
+	} else if (y <= groundHeight) {
 		y = groundHeight;
 		velocityY = 0;
 		isGrounded = true;
 	} else if (isGrounded && y > groundHeight + 0.01) isGrounded = false;
-	return { y, velocityY, isGrounded };
-}
-
-export function isInsideRay(
-	px: number,
-	pz: number,
-	rayCenter: { x: number; z: number },
-	radius: number,
-): boolean {
-	const dx = px - rayCenter.x;
-	const dz = pz - rayCenter.z;
-	return dx * dx + dz * dz <= radius * radius;
+	output.x = x;
+	output.y = y;
+	output.z = z;
+	output.rotationY = rotationY;
+	output.velocityY = velocityY;
+	output.isGrounded = isGrounded;
+	return output;
 }

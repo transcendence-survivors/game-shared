@@ -1,36 +1,24 @@
-import { PLAYER_HB_RADIUS, PLAYER_STEP_UP } from '../utils/Constants';
+import { PLAYER_HB_RADIUS, PLAYER_STEP_UP, TAU } from '../utils/Constants';
+import type { Vec2d } from '../utils/Types';
 import type { World } from '../world/World';
 
 const GROUND_EPS = 0.1;
 const PROBE = 0.01;
+const COLLISION_SAMPLES = 16;
 
-function cellOf(world: World, x: number, z: number) {
-	const sx = Math.round(x * 1000) / 1000;
-	const sz = Math.round(z * 1000) / 1000;
-	return {
-		cellX: Math.floor(sx / world.CELL),
-		cellZ: Math.floor(sz / world.CELL),
-	};
-}
+const FOOTPRINT_DIRECTIONS: ReadonlyArray<readonly [number, number]> = [
+	[0, 0],
+	...Array.from({ length: COLLISION_SAMPLES }, (_, index) => {
+		const angle = (index * TAU) / COLLISION_SAMPLES;
+		return [Math.cos(angle), Math.sin(angle)] as const;
+	}),
+];
 
 function clamp(v: number, min: number, max: number): number {
 	return v < min ? min : v > max ? max : v;
 }
 
-function clampToCell(
-	world: World,
-	cellX: number,
-	cellZ: number,
-	x: number,
-	z: number,
-) {
-	const CELL = world.CELL;
-	return {
-		x: clamp(x, cellX * CELL + PROBE, (cellX + 1) * CELL - PROBE),
-		z: clamp(z, cellZ * CELL + PROBE, (cellZ + 1) * CELL - PROBE),
-	};
-}
-
+// Mesure la marche au ras de la frontière afin de distinguer rampe et falaise.
 function stepHeight(
 	world: World,
 	fromCellX: number,
@@ -40,9 +28,20 @@ function stepHeight(
 	x: number,
 	z: number,
 ): number {
-	const a = clampToCell(world, fromCellX, fromCellZ, x, z);
-	const b = clampToCell(world, toCellX, toCellZ, a.x, a.z);
-	return world.height(b.x, b.z) - world.height(a.x, a.z);
+	const cell = world.CELL;
+	const ax = clamp(
+		x,
+		fromCellX * cell + PROBE,
+		(fromCellX + 1) * cell - PROBE,
+	);
+	const az = clamp(
+		z,
+		fromCellZ * cell + PROBE,
+		(fromCellZ + 1) * cell - PROBE,
+	);
+	const bx = clamp(ax, toCellX * cell + PROBE, (toCellX + 1) * cell - PROBE);
+	const bz = clamp(az, toCellZ * cell + PROBE, (toCellZ + 1) * cell - PROBE);
+	return world.height(bx, bz) - world.height(ax, az);
 }
 
 function isSampleWalkable(
@@ -53,12 +52,12 @@ function isSampleWalkable(
 	z: number,
 	playerY: number,
 ) {
-	const to = cellOf(world, x, z);
-	if (to.cellX === fromCellX && to.cellZ === fromCellZ) return true;
-	if (playerY >= groundHeightUnderHitbox(world, x, z) - GROUND_EPS)
-		return true;
+	const toCellX = Math.floor(x / world.CELL);
+	const toCellZ = Math.floor(z / world.CELL);
+	if (toCellX === fromCellX && toCellZ === fromCellZ) return true;
+	if (playerY >= world.height(x, z) - GROUND_EPS) return true;
 	return (
-		stepHeight(world, fromCellX, fromCellZ, to.cellX, to.cellZ, x, z) <=
+		stepHeight(world, fromCellX, fromCellZ, toCellX, toCellZ, x, z) <=
 		PLAYER_STEP_UP
 	);
 }
@@ -70,27 +69,16 @@ function isPositionWalkable(
 	x: number,
 	z: number,
 	playerY: number,
+	footprintRadius = PLAYER_HB_RADIUS,
 ) {
-	const offsets: Array<[number, number]> = [
-		[0, 0],
-		[PLAYER_HB_RADIUS, 0],
-		[-PLAYER_HB_RADIUS, 0],
-		[0, PLAYER_HB_RADIUS],
-		[0, -PLAYER_HB_RADIUS],
-		[PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
-		[-PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
-		[PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
-		[-PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
-	];
-
-	for (const [dx, dz] of offsets) {
+	for (const [directionX, directionZ] of FOOTPRINT_DIRECTIONS) {
 		if (
 			!isSampleWalkable(
 				world,
 				fromCellX,
 				fromCellZ,
-				x + dx,
-				z + dz,
+				x + directionX * footprintRadius,
+				z + directionZ * footprintRadius,
 				playerY,
 			)
 		) {
@@ -100,51 +88,170 @@ function isPositionWalkable(
 	return true;
 }
 
+function writeIfWalkable(
+	world: World,
+	cellX: number,
+	cellZ: number,
+	x: number,
+	z: number,
+	playerY: number,
+	output: Vec2d,
+	footprintRadius = PLAYER_HB_RADIUS,
+): boolean {
+	if (
+		!isPositionWalkable(world, cellX, cellZ, x, z, playerY, footprintRadius)
+	)
+		return false;
+	output.x = x;
+	output.z = z;
+	return true;
+}
+
+/** Keeps a player's center inside a moving circular access zone. */
+export function clampPositionToCircle(
+	position: Vec2d,
+	centerX: number,
+	centerZ: number,
+	radius: number,
+): boolean {
+	if (
+		!Number.isFinite(position.x) ||
+		!Number.isFinite(position.z) ||
+		!Number.isFinite(centerX) ||
+		!Number.isFinite(centerZ) ||
+		!Number.isFinite(radius)
+	)
+		return false;
+
+	const maxRadius = Math.max(0, radius);
+	const dx = position.x - centerX;
+	const dz = position.z - centerZ;
+	const distanceSquared = dx * dx + dz * dz;
+	if (distanceSquared <= maxRadius * maxRadius || distanceSquared === 0)
+		return false;
+
+	const scale = maxRadius / Math.sqrt(distanceSquared);
+	position.x = centerX + dx * scale;
+	position.z = centerZ + dz * scale;
+	return true;
+}
+
+// Dépénètre un joueur dont le volume chevauche déjà un mur.
+function recoverEmbeddedPosition(
+	world: World,
+	cellX: number,
+	cellZ: number,
+	currentPos: Vec2d,
+	playerY: number,
+	output: Vec2d,
+	footprintRadius = PLAYER_HB_RADIUS,
+) {
+	const margin = footprintRadius + PROBE;
+	const recoveredX = clamp(
+		currentPos.x,
+		cellX * world.CELL + margin,
+		(cellX + 1) * world.CELL - margin,
+	);
+	const recoveredZ = clamp(
+		currentPos.z,
+		cellZ * world.CELL + margin,
+		(cellZ + 1) * world.CELL - margin,
+	);
+	if (
+		writeIfWalkable(
+			world,
+			cellX,
+			cellZ,
+			recoveredX,
+			recoveredZ,
+			playerY,
+			output,
+			footprintRadius,
+		)
+	)
+		return output;
+
+	const centerX = (cellX + 0.5) * world.CELL;
+	const centerZ = (cellZ + 0.5) * world.CELL;
+	if (
+		!writeIfWalkable(
+			world,
+			cellX,
+			cellZ,
+			centerX,
+			centerZ,
+			playerY,
+			output,
+			footprintRadius,
+		)
+	) {
+		output.x = currentPos.x;
+		output.z = currentPos.z;
+	}
+	return output;
+}
+
 export function resolveTerrainCollision(
 	world: World,
-	currentPos: { x: number; z: number },
-	targetPos: { x: number; z: number },
+	currentPos: Vec2d,
+	targetX: number,
+	targetZ: number,
 	playerY: number,
-) {
-	const from = cellOf(world, currentPos.x, currentPos.z);
-
-	if (
-		isPositionWalkable(
+	output: Vec2d = { x: 0, z: 0 },
+	footprintRadius = PLAYER_HB_RADIUS,
+): Vec2d {
+	// A smooth terrain has no cell walls to block against. Vertical movement
+	// still snaps the player to world.height() in the movement simulation.
+	if (world.isSmoothTerrain) {
+		output.x = targetX;
+		output.z = targetZ;
+		return output;
+	}
+	const fromCellX = Math.floor(currentPos.x / world.CELL);
+	const fromCellZ = Math.floor(currentPos.z / world.CELL);
+	const safeFootprintRadius = Number.isFinite(footprintRadius)
+		? Math.max(0.1, footprintRadius)
+		: PLAYER_HB_RADIUS;
+	const write = (x: number, z: number) =>
+		writeIfWalkable(
 			world,
-			from.cellX,
-			from.cellZ,
-			targetPos.x,
-			targetPos.z,
+			fromCellX,
+			fromCellZ,
+			x,
+			z,
 			playerY,
-		)
-	)
-		return { x: targetPos.x, z: targetPos.z };
-
+			output,
+			safeFootprintRadius,
+		);
 	if (
-		isPositionWalkable(
+		write(targetX, targetZ) ||
+		write(targetX, currentPos.z) ||
+		write(currentPos.x, targetZ)
+	)
+		return output;
+	if (
+		!isPositionWalkable(
 			world,
-			from.cellX,
-			from.cellZ,
-			targetPos.x,
+			fromCellX,
+			fromCellZ,
+			currentPos.x,
 			currentPos.z,
 			playerY,
+			safeFootprintRadius,
 		)
 	)
-		return { x: targetPos.x, z: currentPos.z };
-
-	if (
-		isPositionWalkable(
+		return recoverEmbeddedPosition(
 			world,
-			from.cellX,
-			from.cellZ,
-			currentPos.x,
-			targetPos.z,
+			fromCellX,
+			fromCellZ,
+			currentPos,
 			playerY,
-		)
-	)
-		return { x: currentPos.x, z: targetPos.z };
-
-	return { x: currentPos.x, z: currentPos.z };
+			output,
+			safeFootprintRadius,
+		);
+	output.x = currentPos.x;
+	output.z = currentPos.z;
+	return output;
 }
 
 export function groundHeightUnderHitbox(world: World, x: number, z: number) {
