@@ -72,20 +72,20 @@ export class Aura extends Schema {
 	@type('number') height: number = 3;
 }
 
-class PlayerStats extends Schema {
-	maxHealth: number = 100;
-	attackSpeed: number = 1;
+export class PlayerStats extends Schema {
+	@type('number') maxHealth: number = 100;
+	@type('number') attackSpeed: number = 1;
 	@type('number') moveSpeed: number = SPEED;
-	attackDamage: number = 100;
-	armor: number = 1;
-	luck: number = 1;
+	@type('number') attackDamage: number = 100;
+	@type('number') armor: number = 1;
+	@type('number') luck: number = 1;
 	@type('number') killAmount: number = 0;
-	lifesteal: number = 1;
-	range: number = 8;
-	size: number = 1;
-	duration: number = 1;
-	quantity: number = 0;
-	penetration: number = 0;
+	@type('number') lifesteal: number = 1;
+	@type('number') range: number = 8;
+	@type('number') size: number = 1;
+	@type('number') duration: number = 1;
+	@type('number') quantity: number = 0;
+	@type('number') penetration: number = 0;
 	tomeLevels = new Map<string, number>();
 }
 
