@@ -19,6 +19,13 @@ export type {
 	WorldSeedMessage,
 	GameRoomOptions,
 	UpgradeOption,
+	UpgradeDisplayEffect,
+	UpgradeDisplayFormat,
+	TomeUpgradeDisplayEffect,
+	WeaponUpgradeDisplayEffect,
+	TomeStat,
+	TomeId,
+	WeaponUpgradeStat,
 } from './utils/Types';
 
 export { nextPowerOfTwoCapacity } from './utils/Capacity';
@@ -56,7 +63,6 @@ export { rollUpgradeOptions, applyUpgrade } from './gameplay/RollUpgrades';
 export {
 	RARITY_CONFIG,
 	WEAPON_ICONS,
-	WEAPON_NAMES,
 	toUpgradeOption,
 	type UpgradeDef,
 } from './utils/Upgrades';
@@ -66,6 +72,7 @@ export {
 	MAX_DT,
 	ACCESS_RADIUS,
 	PLAYER_ACCESS_RADIUS,
+	PLAYER_BASE_RANGE,
 	CHUNK_DISPLAY_RADIUS,
 	RAY_SPEED,
 	RAY_DIR_X,

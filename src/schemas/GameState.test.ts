@@ -61,7 +61,7 @@ describe('GameState serialization', () => {
 		expect(client.players.get('player')?.y).toBe(6);
 		expect(client.players.get('player')?.stats.moveSpeed).toBe(13);
 		expect(client.players.get('player')?.stats.killAmount).toBe(8);
-		expect(client.players.get('player')?.stats.attackDamage).toBe(100);
+		expect(client.players.get('player')?.stats.attackDamage).toBe(250);
 		expect(client.players.get('player')?.debugImmortal).toBe(false);
 		expect(client.seed).toBe(0);
 		expect(client.players.get('player')?.weapons.get('bow')).toMatchObject({

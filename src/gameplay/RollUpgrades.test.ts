@@ -6,11 +6,7 @@ import {
 	rollUpgradeOptions,
 	rollUpgradeRarity,
 } from './RollUpgrades';
-import {
-	TOME_SLOT_LIMIT,
-	toUpgradeOption,
-	type UpgradeDef,
-} from '../utils/Upgrades';
+import { toUpgradeOption, type UpgradeDef } from '../utils/Upgrades';
 
 function playerWithAura(): Player {
 	const player = new Player();
@@ -30,8 +26,7 @@ describe('RollUpgrades', () => {
 		expect(first).toHaveLength(3);
 		for (const option of first) {
 			expect(option.rarity).toBeTruthy();
-			expect(option.category).toBeTruthy();
-			expect(option.description.length).toBeGreaterThan(0);
+			expect(option.effect).toBeTruthy();
 		}
 	});
 
@@ -40,31 +35,70 @@ describe('RollUpgrades', () => {
 		const option = toUpgradeOption(upgrade!);
 
 		expect(option).not.toHaveProperty('effect');
+		expect(option).not.toHaveProperty('name');
+		expect(option).not.toHaveProperty('description');
 		expect(option.id).toBe(upgrade!.id);
+		expect(option.effects.length).toBeGreaterThan(0);
+	});
+
+	test('creates a locale-neutral public payload with display-ready values', () => {
+		const option = toUpgradeOption({
+			id: 'weapon_bow:test',
+			iconUrl: 'weaponBow',
+			rarity: 'rare',
+			effect: {
+				kind: 'augment-weapon',
+				weaponKind: 'bow',
+				level: 3,
+				maxLevel: 40,
+				bonuses: [
+					{ stat: 'damageBonus', value: 0.2 },
+					{ stat: 'quantityBonus', value: 2 },
+				],
+			},
+		});
+
+		expect(option).toEqual({
+			id: 'weapon_bow:test',
+			iconUrl: 'weaponBow',
+			rarity: 'rare',
+			category: 'weapon',
+			weaponKind: 'bow',
+			level: 3,
+			effects: [
+				{
+					source: 'weapon',
+					stat: 'damageBonus',
+					value: 20,
+					format: 'percent',
+				},
+				{
+					source: 'weapon',
+					stat: 'quantityBonus',
+					value: 2,
+					format: 'integer',
+				},
+			],
+		});
 	});
 
 	test('unlocks then augments a weapon with rolled attributes', () => {
 		const player = playerWithAura();
 		const unlock: UpgradeDef = {
 			id: 'unlock_bow:test',
-			name: 'Débloquer Arc',
-			description: 'Nouvelle arme',
 			iconUrl: 'weaponBow',
 			rarity: 'common',
-			category: 'unlock',
 			effect: { kind: 'unlock-weapon', weaponKind: 'bow' },
 		};
 		expect(applyUpgrade(player, unlock)).toBe(true);
 		const augment: UpgradeDef = {
 			id: 'weapon_bow:test',
-			name: 'Arc · Niv. 2',
-			description: '+20 % dégâts\n+1 projectile',
 			iconUrl: 'weaponBow',
 			rarity: 'rare',
-			category: 'weapon',
 			effect: {
 				kind: 'augment-weapon',
 				weaponKind: 'bow',
+				level: 2,
 				maxLevel: 40,
 				bonuses: [
 					{ stat: 'damageBonus', value: 0.2 },
@@ -82,29 +116,32 @@ describe('RollUpgrades', () => {
 
 	test('limits new tomes to slots while allowing selected tomes to level', () => {
 		const player = playerWithAura();
-		for (let index = 0; index < TOME_SLOT_LIMIT; index++)
-			player.stats.tomeLevels.set(`selected-${index}`, 1);
+		for (const tomeId of [
+			'cooldown',
+			'agility',
+			'vitality',
+			'armor',
+		] as const)
+			player.stats.tomeLevels.set(tomeId, 1);
 		const newTome: UpgradeDef = {
 			id: 'tome_damage:test',
-			name: 'Tome de puissance',
-			description: '+8 % dégâts',
 			iconUrl: 'tomeDamage',
 			rarity: 'common',
-			category: 'tome',
 			effect: {
 				kind: 'tome',
 				tomeId: 'damage',
 				stat: 'attackDamage',
 				value: 8,
+				level: 1,
 				maxLevel: 99,
 			},
 		};
 		expect(canApplyUpgrade(player, newTome)).toBe(false);
 		if (newTome.effect.kind !== 'tome') throw new Error('Expected tome');
-		newTome.effect.tomeId = 'selected-0';
+		newTome.effect.tomeId = 'cooldown';
 		expect(applyUpgrade(player, newTome)).toBe(true);
 		expect(player.stats.attackDamage).toBe(108);
-		expect(player.stats.tomeLevels.get('selected-0')).toBe(2);
+		expect(player.stats.tomeLevels.get('cooldown')).toBe(2);
 	});
 
 	test('rejects a fourth weapon at the authoritative loadout limit', () => {
@@ -116,11 +153,8 @@ describe('RollUpgrades', () => {
 		}
 		const fourthWeapon: UpgradeDef = {
 			id: 'unlock_bow:forged',
-			name: 'Débloquer Arc',
-			description: 'Nouvelle arme',
 			iconUrl: 'weaponBow',
 			rarity: 'common',
-			category: 'unlock',
 			effect: { kind: 'unlock-weapon', weaponKind: 'bow' },
 		};
 

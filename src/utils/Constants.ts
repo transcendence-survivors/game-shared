@@ -30,6 +30,7 @@ export const RAY_DIR_X = 0;
 export const RAY_DIR_Z = 1;
 
 export const PLAYER_MAX_LIFE = 100;
+export const PLAYER_BASE_RANGE = 8;
 
 export const PLAYER_AURA_RADIUS = 24;
 export const PLAYER_AURA_ATTACK_SPEED = 1;

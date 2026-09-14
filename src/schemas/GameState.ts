@@ -7,6 +7,7 @@ import {
 	MONSTER_BASE_LIFE,
 	MONSTER_BASE_XP_REWARD,
 	PLAYER_MAX_LIFE,
+	PLAYER_BASE_RANGE,
 	PLAYER_AURA_RADIUS,
 	PLAYER_AURA_ATTACK_SPEED,
 	SPEED,
@@ -81,7 +82,7 @@ export class PlayerStats extends Schema {
 	@type('number') luck: number = 1;
 	@type('number') killAmount: number = 0;
 	@type('number') lifesteal: number = 1;
-	@type('number') range: number = 8;
+	@type('number') range: number = PLAYER_BASE_RANGE;
 	@type('number') size: number = 1;
 	@type('number') duration: number = 1;
 	@type('number') quantity: number = 0;

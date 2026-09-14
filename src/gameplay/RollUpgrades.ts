@@ -4,13 +4,10 @@ import { COMBAT_LIMITS } from '../combat/WeaponConfigs';
 import { UPGRADE_RARITIES, WEAPON_KINDS } from '../utils/Constants';
 import type { UpgradeRarity, WeaponKind } from '../utils/Types';
 import {
-	formatTomeValue,
-	formatWeaponBonus,
 	RARITY_CONFIG,
 	TOME_DEFINITIONS,
 	TOME_SLOT_LIMIT,
 	WEAPON_ICONS,
-	WEAPON_NAMES,
 	WEAPON_TRAIT_POOLS,
 	type TomeDefinition,
 	type UpgradeDef,
@@ -78,16 +75,14 @@ function rollTome(
 	const level = (player.stats.tomeLevels.get(definition.id) ?? 0) + 1;
 	return {
 		id: offerId(`tome_${definition.id}`, random),
-		name: `${definition.name} · Niv. ${level}`,
-		description: formatTomeValue(definition, value),
 		iconUrl: definition.iconUrl,
 		rarity,
-		category: 'tome',
 		effect: {
 			kind: 'tome',
 			tomeId: definition.id,
 			stat: definition.stat,
 			value,
+			level,
 			maxLevel: definition.maxLevel,
 		},
 	};
@@ -97,25 +92,23 @@ function rolledWeaponBonuses(
 	weaponKind: WeaponKind,
 	rarity: UpgradeRarity,
 	random: () => number,
-): { values: WeaponUpgradeBonus[]; description: string } {
+): WeaponUpgradeBonus[] {
 	const pool = shuffleInPlace([...WEAPON_TRAIT_POOLS[weaponKind]], random);
 	const { valueMultiplier, weaponStatCount } = RARITY_CONFIG[rarity];
 	const values: WeaponUpgradeBonus[] = [];
-	let description = '';
 	const count = Math.min(pool.length, weaponStatCount);
 	for (let index = 0; index < count; index++) {
 		const definition = pool[index]!;
 		const value =
-			definition.format === 'integer'
+			definition.valueType === 'integer'
 				? Math.max(
 						1,
 						Math.round(definition.baseValue * valueMultiplier),
 					)
 				: roundBonus(definition.baseValue * valueMultiplier);
 		values.push({ stat: definition.stat, value });
-		description += `${description ? '\n' : ''}${formatWeaponBonus(definition, value)}`;
 	}
-	return { values, description };
+	return values;
 }
 
 function rollWeaponAugment(
@@ -124,23 +117,17 @@ function rollWeaponAugment(
 	random: () => number,
 ): UpgradeDef {
 	const rarity = rollUpgradeRarity(player.stats.luck, random);
-	const { values, description } = rolledWeaponBonuses(
-		weaponKind,
-		rarity,
-		random,
-	);
+	const bonuses = rolledWeaponBonuses(weaponKind, rarity, random);
 	const nextLevel = (player.weapons.get(weaponKind)?.level ?? 0) + 1;
 	return {
 		id: offerId(`weapon_${weaponKind}`, random),
-		name: `${WEAPON_NAMES[weaponKind]} · Niv. ${nextLevel}`,
-		description,
 		iconUrl: WEAPON_ICONS[weaponKind],
 		rarity,
-		category: 'weapon',
 		effect: {
 			kind: 'augment-weapon',
 			weaponKind,
-			bonuses: values,
+			bonuses,
+			level: nextLevel,
 			maxLevel: weaponConfigRegistry.get(weaponKind).maxLevel,
 		},
 	};
@@ -152,11 +139,8 @@ function unlockWeapon(
 ): UpgradeDef {
 	return {
 		id: offerId(`unlock_${weaponKind}`, random),
-		name: `Débloquer ${WEAPON_NAMES[weaponKind]}`,
-		description: 'Nouvelle arme ajoutée à votre arsenal',
 		iconUrl: WEAPON_ICONS[weaponKind],
 		rarity: 'common',
-		category: 'unlock',
 		effect: { kind: 'unlock-weapon', weaponKind },
 	};
 }

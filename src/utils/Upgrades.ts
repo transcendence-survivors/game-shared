@@ -1,35 +1,15 @@
-import { PLAYER_MAX_LIFE, SPEED } from './Constants';
+import { PLAYER_BASE_RANGE, PLAYER_MAX_LIFE, SPEED } from './Constants';
 import type {
+	TomeUpgradeDisplayEffect,
+	TomeStat,
+	TomeId,
 	UpgradeIcon,
 	UpgradeOption,
 	UpgradeRarity,
 	WeaponKind,
+	WeaponUpgradeDisplayEffect,
+	WeaponUpgradeStat,
 } from './Types';
-
-export type TomeStat =
-	| 'attackDamage'
-	| 'attackSpeed'
-	| 'moveSpeed'
-	| 'lifesteal'
-	| 'range'
-	| 'armor'
-	| 'maxHealth'
-	| 'size'
-	| 'duration'
-	| 'quantity'
-	| 'penetration'
-	| 'luck';
-
-export type WeaponUpgradeStat =
-	| 'damageBonus'
-	| 'attackRateBonus'
-	| 'rangeBonus'
-	| 'durationBonus'
-	| 'sizeBonus'
-	| 'speedBonus'
-	| 'quantityBonus'
-	| 'penetrationBonus'
-	| 'knockbackBonus';
 
 export interface WeaponUpgradeBonus {
 	stat: WeaponUpgradeStat;
@@ -39,9 +19,10 @@ export interface WeaponUpgradeBonus {
 type UpgradeEffect =
 	| {
 			kind: 'tome';
-			tomeId: string;
+			tomeId: TomeId;
 			stat: TomeStat;
 			value: number;
+			level: number;
 			maxLevel: number;
 	  }
 	| { kind: 'unlock-weapon'; weaponKind: WeaponKind }
@@ -49,39 +30,124 @@ type UpgradeEffect =
 			kind: 'augment-weapon';
 			weaponKind: WeaponKind;
 			bonuses: WeaponUpgradeBonus[];
+			level: number;
 			maxLevel: number;
 	  };
 
-export interface UpgradeDef extends UpgradeOption {
+export interface UpgradeDef {
+	id: string;
+	iconUrl: UpgradeIcon;
+	rarity: UpgradeRarity;
 	effect: UpgradeEffect;
 }
 
-export function toUpgradeOption({
-	id,
-	name,
-	description,
-	iconUrl,
-	rarity,
-	category,
-}: UpgradeDef): UpgradeOption {
-	return { id, name, description, iconUrl, rarity, category };
+function tomeDisplayEffect(
+	stat: TomeStat,
+	value: number,
+): TomeUpgradeDisplayEffect {
+	switch (stat) {
+		case 'attackDamage':
+			return { source: 'tome', stat, value, format: 'percent' };
+		case 'moveSpeed':
+			return {
+				source: 'tome',
+				stat,
+				value: (value / SPEED) * 100,
+				format: 'percent',
+			};
+		case 'maxHealth':
+			return {
+				source: 'tome',
+				stat,
+				value: (value / PLAYER_MAX_LIFE) * 100,
+				format: 'percent',
+			};
+		case 'range':
+			return {
+				source: 'tome',
+				stat,
+				value: (value / PLAYER_BASE_RANGE) * 100,
+				format: 'percent',
+			};
+		case 'attackSpeed':
+		case 'size':
+		case 'duration':
+		case 'luck':
+			return {
+				source: 'tome',
+				stat,
+				value: value * 100,
+				format: 'percent',
+			};
+		case 'lifesteal':
+			return { source: 'tome', stat, value, format: 'decimal' };
+		case 'armor':
+		case 'quantity':
+		case 'penetration':
+			return { source: 'tome', stat, value, format: 'integer' };
+	}
+}
+
+function weaponDisplayEffect({
+	stat,
+	value,
+}: WeaponUpgradeBonus): WeaponUpgradeDisplayEffect {
+	const integer = stat === 'quantityBonus' || stat === 'penetrationBonus';
+	return {
+		source: 'weapon',
+		stat,
+		value: integer ? value : value * 100,
+		format: integer ? 'integer' : 'percent',
+	};
+}
+
+export function toUpgradeOption(upgrade: UpgradeDef): UpgradeOption {
+	const { id, iconUrl, rarity, effect } = upgrade;
+	switch (effect.kind) {
+		case 'tome':
+			return {
+				id,
+				iconUrl,
+				rarity,
+				category: 'tome',
+				tomeId: effect.tomeId,
+				level: effect.level,
+				effects: [tomeDisplayEffect(effect.stat, effect.value)],
+			};
+		case 'augment-weapon':
+			return {
+				id,
+				iconUrl,
+				rarity,
+				category: 'weapon',
+				weaponKind: effect.weaponKind,
+				level: effect.level,
+				effects: effect.bonuses.map(weaponDisplayEffect),
+			};
+		case 'unlock-weapon':
+			return {
+				id,
+				iconUrl,
+				rarity,
+				category: 'unlock',
+				weaponKind: effect.weaponKind,
+				effects: [],
+			};
+	}
 }
 
 export interface TomeDefinition {
-	id: string;
-	name: string;
+	id: TomeId;
 	stat: TomeStat;
 	baseValue: number;
 	maxLevel: number;
 	iconUrl: UpgradeDef['iconUrl'];
-	format: 'percent' | 'points' | 'flat' | 'speed-percent';
 }
 
 export interface WeaponTraitDefinition {
 	stat: WeaponUpgradeStat;
 	baseValue: number;
-	label: string;
-	format: 'percent' | 'integer';
+	valueType: 'ratio' | 'integer';
 }
 
 export const TOME_SLOT_LIMIT = 4;
@@ -91,7 +157,6 @@ export const RARITY_CONFIG: Readonly<
 	Record<
 		UpgradeRarity,
 		{
-			label: string;
 			weight: number;
 			valueMultiplier: number;
 			weaponStatCount: number;
@@ -99,31 +164,26 @@ export const RARITY_CONFIG: Readonly<
 	>
 > = {
 	common: {
-		label: 'Commun',
 		weight: 55,
 		valueMultiplier: 1,
 		weaponStatCount: 1,
 	},
 	uncommon: {
-		label: 'Inhabituel',
 		weight: 25,
 		valueMultiplier: 1.35,
 		weaponStatCount: 1,
 	},
 	rare: {
-		label: 'Rare',
 		weight: 12,
 		valueMultiplier: 1.75,
 		weaponStatCount: 2,
 	},
 	epic: {
-		label: 'Épique',
 		weight: 6,
 		valueMultiplier: 2.25,
 		weaponStatCount: 2,
 	},
 	legendary: {
-		label: 'Légendaire',
 		weight: 2,
 		valueMultiplier: 3,
 		weaponStatCount: 3,
@@ -133,158 +193,127 @@ export const RARITY_CONFIG: Readonly<
 export const TOME_DEFINITIONS: readonly TomeDefinition[] = [
 	{
 		id: 'damage',
-		name: 'Tome de puissance',
 		stat: 'attackDamage',
 		baseValue: 8,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeDamage',
-		format: 'percent',
 	},
 	{
 		id: 'cooldown',
-		name: 'Tome de célérité',
 		stat: 'attackSpeed',
 		baseValue: 0.075,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeCooldown',
-		format: 'percent',
 	},
 	{
 		id: 'agility',
-		name: "Tome d'agilité",
 		stat: 'moveSpeed',
 		baseValue: SPEED * 0.1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeAgility',
-		format: 'speed-percent',
 	},
 	{
 		id: 'vitality',
-		name: 'Tome de vitalité',
 		stat: 'maxHealth',
 		baseValue: PLAYER_MAX_LIFE * 0.1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeVitality',
-		format: 'percent',
 	},
 	{
 		id: 'armor',
-		name: "Tome d'armure",
 		stat: 'armor',
 		baseValue: 1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeArmor',
-		format: 'flat',
 	},
 	{
 		id: 'blood',
-		name: 'Tome sanguin',
 		stat: 'lifesteal',
 		baseValue: 1.5,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeBlood',
-		format: 'points',
 	},
 	{
 		id: 'range',
-		name: 'Tome de portée',
 		stat: 'range',
 		baseValue: 0.8,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeRange',
-		format: 'percent',
 	},
 	{
 		id: 'size',
-		name: 'Tome de grandeur',
 		stat: 'size',
 		baseValue: 0.1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeSize',
-		format: 'percent',
 	},
 	{
 		id: 'duration',
-		name: 'Tome de durée',
 		stat: 'duration',
 		baseValue: 0.1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeDuration',
-		format: 'percent',
 	},
 	{
 		id: 'quantity',
-		name: 'Tome de quantité',
 		stat: 'quantity',
 		baseValue: 1,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeQuantity',
-		format: 'flat',
 	},
 	{
 		id: 'fortune',
-		name: 'Tome de fortune',
 		stat: 'luck',
 		baseValue: 0.07,
 		maxLevel: TOME_MAX_LEVEL,
 		iconUrl: 'tomeFortune',
-		format: 'percent',
 	},
 ] as const;
 
 const DAMAGE: WeaponTraitDefinition = {
 	stat: 'damageBonus',
 	baseValue: 0.1,
-	label: 'dégâts',
-	format: 'percent',
+	valueType: 'ratio',
 };
 const ATTACK_RATE: WeaponTraitDefinition = {
 	stat: 'attackRateBonus',
 	baseValue: 0.08,
-	label: "vitesse d'attaque",
-	format: 'percent',
+	valueType: 'ratio',
 };
 const RANGE: WeaponTraitDefinition = {
 	stat: 'rangeBonus',
 	baseValue: 0.1,
-	label: 'portée',
-	format: 'percent',
+	valueType: 'ratio',
 };
 const DURATION: WeaponTraitDefinition = {
 	stat: 'durationBonus',
 	baseValue: 0.12,
-	label: 'durée',
-	format: 'percent',
+	valueType: 'ratio',
 };
 const SIZE: WeaponTraitDefinition = {
 	stat: 'sizeBonus',
 	baseValue: 0.1,
-	label: 'taille',
-	format: 'percent',
+	valueType: 'ratio',
 };
 const PROJECTILE_SPEED: WeaponTraitDefinition = {
 	stat: 'speedBonus',
 	baseValue: 0.12,
-	label: 'vitesse des projectiles',
-	format: 'percent',
+	valueType: 'ratio',
 };
 const QUANTITY: WeaponTraitDefinition = {
 	stat: 'quantityBonus',
 	baseValue: 1,
-	label: 'projectile',
-	format: 'integer',
+	valueType: 'integer',
 };
 const PENETRATION: WeaponTraitDefinition = {
 	stat: 'penetrationBonus',
 	baseValue: 1,
-	label: 'pénétration',
-	format: 'integer',
+	valueType: 'integer',
 };
 const KNOCKBACK: WeaponTraitDefinition = {
 	stat: 'knockbackBonus',
 	baseValue: 0.15,
-	label: 'projection',
-	format: 'percent',
+	valueType: 'ratio',
 };
 
 export const WEAPON_TRAIT_POOLS: Readonly<
@@ -315,14 +344,6 @@ export const WEAPON_TRAIT_POOLS: Readonly<
 	],
 };
 
-export const WEAPON_NAMES: Readonly<Record<WeaponKind, string>> = {
-	aura: 'Aura',
-	sword: 'Épée',
-	axe: 'Hache',
-	staff: 'Staff',
-	bow: 'Arc',
-};
-
 export const WEAPON_ICONS: Readonly<Record<WeaponKind, UpgradeIcon>> = {
 	aura: 'weaponAura',
 	sword: 'weaponSword',
@@ -330,50 +351,3 @@ export const WEAPON_ICONS: Readonly<Record<WeaponKind, UpgradeIcon>> = {
 	staff: 'weaponStaff',
 	bow: 'weaponBow',
 };
-
-function displayNumber(value: number): string {
-	return String(Number(value.toFixed(1)));
-}
-
-export function formatWeaponBonus(
-	definition: WeaponTraitDefinition,
-	value: number,
-): string {
-	if (definition.format === 'integer')
-		return `+${Math.round(value)} ${definition.label}${value > 1 ? 's' : ''}`;
-	return `+${displayNumber(value * 100)} % ${definition.label}`;
-}
-
-export function formatTomeValue(
-	definition: TomeDefinition,
-	value: number,
-): string {
-	switch (definition.format) {
-		case 'speed-percent':
-			return `+${displayNumber((value / SPEED) * 100)} % vitesse`;
-		case 'points':
-			return `+${displayNumber(value)} points de vol de vie`;
-		case 'flat':
-			if (definition.stat === 'armor')
-				return `+${Math.round(value)} armure`;
-			if (definition.stat === 'quantity')
-				return `+${Math.round(value)} projectile${value > 1 ? 's' : ''}`;
-			return `+${Math.round(value)}`;
-		case 'percent':
-			if (definition.stat === 'attackDamage')
-				return `+${displayNumber(value)} % dégâts`;
-			if (definition.stat === 'maxHealth')
-				return `+${displayNumber((value / PLAYER_MAX_LIFE) * 100)} % vie max`;
-			if (definition.stat === 'range')
-				return `+${displayNumber((value / 8) * 100)} % portée`;
-			if (definition.stat === 'size')
-				return `+${displayNumber(value * 100)} % taille`;
-			if (definition.stat === 'duration')
-				return `+${displayNumber(value * 100)} % durée`;
-			if (definition.stat === 'attackSpeed')
-				return `+${displayNumber(value * 100)} % vitesse d'attaque`;
-			if (definition.stat === 'luck')
-				return `+${displayNumber(value * 100)} % chance de rareté`;
-			return `+${displayNumber(value * 100)} %`;
-	}
-}

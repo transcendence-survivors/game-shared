@@ -47,6 +47,64 @@ export type UpgradeRarity = (typeof UPGRADE_RARITIES)[number];
 
 export type UpgradeCategory = 'tome' | 'weapon' | 'unlock';
 
+export type TomeStat =
+	| 'attackDamage'
+	| 'attackSpeed'
+	| 'moveSpeed'
+	| 'lifesteal'
+	| 'range'
+	| 'armor'
+	| 'maxHealth'
+	| 'size'
+	| 'duration'
+	| 'quantity'
+	| 'penetration'
+	| 'luck';
+
+export type TomeId =
+	| 'damage'
+	| 'cooldown'
+	| 'agility'
+	| 'vitality'
+	| 'armor'
+	| 'blood'
+	| 'range'
+	| 'size'
+	| 'duration'
+	| 'quantity'
+	| 'fortune';
+
+export type WeaponUpgradeStat =
+	| 'damageBonus'
+	| 'attackRateBonus'
+	| 'rangeBonus'
+	| 'durationBonus'
+	| 'sizeBonus'
+	| 'speedBonus'
+	| 'quantityBonus'
+	| 'penetrationBonus'
+	| 'knockbackBonus';
+
+export type UpgradeDisplayFormat = 'percent' | 'integer' | 'decimal';
+
+interface UpgradeDisplayEffectBase {
+	value: number;
+	format: UpgradeDisplayFormat;
+}
+
+export interface TomeUpgradeDisplayEffect extends UpgradeDisplayEffectBase {
+	source: 'tome';
+	stat: TomeStat;
+}
+
+export interface WeaponUpgradeDisplayEffect extends UpgradeDisplayEffectBase {
+	source: 'weapon';
+	stat: WeaponUpgradeStat;
+}
+
+export type UpgradeDisplayEffect =
+	TomeUpgradeDisplayEffect | WeaponUpgradeDisplayEffect;
+
 export type UpgradeIcon =
 	| 'tomeDamage'
 	| 'tomeCooldown'
@@ -151,11 +209,27 @@ export interface MovementBoundary {
 	radius: number;
 }
 
-export interface UpgradeOption {
+interface UpgradeOptionBase {
 	id: string;
-	name: string;
-	description: string;
 	iconUrl: UpgradeIcon;
 	rarity: UpgradeRarity;
-	category: UpgradeCategory;
 }
+
+export type UpgradeOption =
+	| (UpgradeOptionBase & {
+			category: 'tome';
+			tomeId: TomeId;
+			level: number;
+			effects: readonly [TomeUpgradeDisplayEffect];
+	  })
+	| (UpgradeOptionBase & {
+			category: 'weapon';
+			weaponKind: WeaponKind;
+			level: number;
+			effects: readonly WeaponUpgradeDisplayEffect[];
+	  })
+	| (UpgradeOptionBase & {
+			category: 'unlock';
+			weaponKind: WeaponKind;
+			effects: readonly [];
+	  });
