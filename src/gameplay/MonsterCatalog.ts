@@ -107,10 +107,6 @@ const normalStats = (
 	knockbackResistance,
 });
 
-/**
- * Single source of truth for monster gameplay. The UI only maps modelId to an
- * asset; the server uses every other field to create and simulate monsters.
- */
 export const MONSTER_DEFINITIONS = {
 	grunt: {
 		kind: 'grunt',

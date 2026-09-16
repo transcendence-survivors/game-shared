@@ -24,12 +24,9 @@ export interface DifficultyStage {
 	eliteChance: number;
 }
 
-/** All monster pacing knobs live here so balance does not leak into systems. */
 export const MONSTER_DIRECTOR_CONFIG = {
 	initialSpawnDelayS: 0.5,
-	/** Normal and elite monsters may use the full gameplay population. */
 	maxPopulation: MONSTER_MAX_POPULATION,
-	/** Reserved capacity that normal population filling can never consume. */
 	bossSlotCapacity: MONSTER_BOSS_SLOT_CAPACITY,
 	totalPopulationCapacity:
 		MONSTER_MAX_POPULATION + MONSTER_BOSS_SLOT_CAPACITY,
@@ -49,7 +46,6 @@ export const MONSTER_DIRECTOR_CONFIG = {
 	preferredRangePadding: 3,
 	preferredRangeBuffer: 1,
 	targetSwitchDistanceMultiplier: 1.2,
-	/** PBD contact broad phase. Sized for the largest current elite pair. */
 	separationCellSize: 4,
 	separationRadiusMultiplier: 0.78,
 	separationPadding: 0.35,
@@ -62,12 +58,10 @@ export const MONSTER_DIRECTOR_CONFIG = {
 	separationSleepMovementEpsilon: 0.01,
 	separationSleepStableTicks: 20,
 	separationWakePenetration: 0.08,
-	/** Network snapshots; authoritative simulation and combat still run every tick. */
 	monsterTransformPublishIntervalS: 0.1,
 	positionPublishEpsilon: 0.002,
 	rotationPublishEpsilon: 0.005,
 	combatSpatialQueryPadding: 8,
-	/** Authoritative knockback impulse tuning. */
 	knockbackDurationS: 0.3,
 	knockbackResistanceExponent: 0.5,
 	knockbackMaximumSpeed: 45,
@@ -174,7 +168,6 @@ function interpolate(a: number, b: number, amount: number): number {
 	return a + (b - a) * amount;
 }
 
-/** Returns a smoothly interpolated difficulty stage for the current run time. */
 export function difficultyStageAt(elapsedSeconds: number): DifficultyStage {
 	const elapsed = Math.max(
 		0,
@@ -230,10 +223,6 @@ export function difficultyStageAt(elapsedSeconds: number): DifficultyStage {
 	return current;
 }
 
-/**
- * Calculates immutable spawn-time stats from the archetype, stage and rank.
- * Existing monsters are never rescaled, so difficulty cannot heal them.
- */
 export function computeArchetypeStats(
 	kind: string,
 	elapsedSeconds: number,
@@ -304,7 +293,6 @@ export function computeArchetypeStats(
 	};
 }
 
-/** Returns the desired normal/elite population for a room at the current time. */
 export function targetPopulation(
 	elapsedSeconds: number,
 	playerCount = 1,

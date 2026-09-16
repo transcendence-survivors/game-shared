@@ -1,4 +1,3 @@
-/** Returns the first doubled capacity able to contain the requested size. */
 export function nextPowerOfTwoCapacity(
 	required: number,
 	minimumCapacity: number,

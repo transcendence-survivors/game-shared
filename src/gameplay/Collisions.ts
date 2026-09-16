@@ -18,7 +18,6 @@ function clamp(v: number, min: number, max: number): number {
 	return v < min ? min : v > max ? max : v;
 }
 
-// Mesure la marche au ras de la frontière afin de distinguer rampe et falaise.
 function stepHeight(
 	world: World,
 	fromCellX: number,
@@ -107,7 +106,6 @@ function writeIfWalkable(
 	return true;
 }
 
-/** Keeps a player's center inside a moving circular access zone. */
 export function clampPositionToCircle(
 	position: Vec2d,
 	centerX: number,
@@ -136,7 +134,6 @@ export function clampPositionToCircle(
 	return true;
 }
 
-// Dépénètre un joueur dont le volume chevauche déjà un mur.
 function recoverEmbeddedPosition(
 	world: World,
 	cellX: number,
@@ -200,8 +197,6 @@ export function resolveTerrainCollision(
 	output: Vec2d = { x: 0, z: 0 },
 	footprintRadius = PLAYER_HB_RADIUS,
 ): Vec2d {
-	// A smooth terrain has no cell walls to block against. Vertical movement
-	// still snaps the player to world.height() in the movement simulation.
 	if (world.isSmoothTerrain) {
 		output.x = targetX;
 		output.z = targetZ;

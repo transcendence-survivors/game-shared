@@ -10,7 +10,6 @@ export interface WorldColor {
 
 export type WorldNormal = Vec3d;
 
-/** Height and exact triangle normal of the rendered continuous terrain. */
 export interface WorldSurfaceSample extends WorldNormal {
 	height: number;
 }
@@ -22,7 +21,6 @@ interface SurfaceCellHeights {
 	h11: number;
 }
 
-/** The rendered terrain uses the same grid resolution for every chunk. */
 export const TERRAIN_SUBDIVISIONS_PER_CELL = 4;
 
 const GRASS = { r: 0.36, g: 0.55, b: 0.27 };
@@ -49,11 +47,6 @@ function mixC(a: WorldColor, b: WorldColor, t: number): WorldColor {
 	return { r: lerp(a.r, b.r, t), g: lerp(a.g, b.g, t), b: lerp(a.b, b.b, t) };
 }
 
-/**
- * Keeps procedural caches bounded without clearing every derived value in a
- * single hot-path call. Map insertion order gives us a cheap FIFO eviction;
- * all entries are deterministic recomputations, never gameplay state.
- */
 function setBoundedCache<K, V>(
 	cache: Map<K, V>,
 	key: K,
@@ -70,14 +63,12 @@ function setBoundedCache<K, V>(
 	}
 }
 
-// Paliers 1-lipschitziens reliés par des rampes procédurales déterministes.
 export class World {
 	readonly seed: number;
 	readonly CELL = 12;
 	readonly N = 4;
 	readonly STEP = 10;
 	readonly TIERS = 8;
-	/** The rendered ground is a continuous surface, not a stepped voxel map. */
 	readonly isSmoothTerrain = true;
 	private readonly terrainBaseHeight = 24;
 	private readonly terrainHeightAmplitude = 18;
@@ -94,9 +85,7 @@ export class World {
 	private dilateCache = new Map<number, number>();
 	private closeCache = new Map<number, number>();
 	private rampCache = new Map<number, readonly [number, number] | null>();
-	/** Corner samples are shared by movement, scenery and neighboring chunks. */
 	private surfaceHeightCache = new Map<number, number>();
-	/** Four-corner cells avoid four Map lookups for every height query. */
 	private surfaceCellCache = new Map<number, SurfaceCellHeights>();
 	private topColorCache: WorldColor[] = [];
 
@@ -273,7 +262,6 @@ export class World {
 		return d;
 	}
 
-	/** Smooth source height sampled by the rendered terrain grid. */
 	private continuousHeight(wx: number, wz: number): number {
 		const broad = this.noise(wx / 180, wz / 180);
 		const rolling = this.noise(wx / 72 + 31.7, wz / 72 - 13.1);
@@ -315,10 +303,6 @@ export class World {
 		return cell;
 	}
 
-	/**
-	 * Samples height and normal together without evaluating the four terrain
-	 * corners twice. The ref form lets render-time callers reuse one object.
-	 */
 	sampleSurfaceToRef(
 		wx: number,
 		wz: number,
@@ -359,13 +343,6 @@ export class World {
 		});
 	}
 
-	/**
-	 * Height of the actual continuous terrain mesh at a world position.
-	 *
-	 * The renderer triangulates each 3-unit grid cell along the same diagonal,
-	 * so sampling that triangle here keeps gameplay and scenery exactly on the
-	 * visible surface instead of relying on an approximate offset.
-	 */
 	height(wx: number, wz: number): number {
 		const step = this.CELL / TERRAIN_SUBDIVISIONS_PER_CELL;
 		const gx = Math.floor(wx / step);
@@ -377,7 +354,6 @@ export class World {
 		return h10 * (1 - v) + h01 * (1 - u) + h11 * (u + v - 1);
 	}
 
-	/** Exact upward normal of the rendered triangle under a world position. */
 	groundNormal(wx: number, wz: number): WorldNormal {
 		const step = this.CELL / TERRAIN_SUBDIVISIONS_PER_CELL;
 		const gx = Math.floor(wx / step);

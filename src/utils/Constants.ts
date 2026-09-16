@@ -35,7 +35,6 @@ export const PLAYER_BASE_RANGE = 8;
 export const PLAYER_AURA_RADIUS = 24;
 export const PLAYER_AURA_ATTACK_SPEED = 1;
 export const WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff', 'bow'] as const;
-/** The opening kit must clear the first swarm without waiting for upgrades. */
 export const STARTER_WEAPON_KINDS = ['aura', 'axe'] as const;
 export const COMBAT_ENTITY_KINDS = [
 	'sword-slash',
@@ -84,9 +83,7 @@ export const MONSTER_BASE_XP_REWARD = 6;
 
 export const MONSTER_BASE_POPULATION = 18;
 export const MONSTER_MAX_POPULATION = 1440;
-/** Capacity reserved exclusively for boss entities. */
 export const MONSTER_BOSS_SLOT_CAPACITY = 5;
-/** Initial snapshot capacity for the maximum synchronized monster roster. */
 export const STATE_ENCODER_BUFFER_SIZE = 256 * 1024;
 export const MONSTER_MOVE_SPEED = 7;
 export const MONSTER_ATTACK_RANGE = 1;

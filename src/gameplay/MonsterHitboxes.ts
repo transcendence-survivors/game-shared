@@ -7,7 +7,6 @@ export const DEFAULT_MONSTER_HITBOX_OFFSET_X = 0;
 export const DEFAULT_MONSTER_HITBOX_OFFSET_Z = 0;
 export const MONSTER_MODEL_SCALE = 0.5;
 export const BOSS_MODEL_SCALE = 4;
-/** Elites are deliberately unmistakable in the crowd. */
 export const ELITE_MODEL_SCALE = 2;
 
 export interface MonsterHitboxPrimitive {
@@ -67,9 +66,6 @@ type MonsterProfile = {
 };
 type KnownKind = MonsterKind | BossKind;
 
-// These are the unscaled bind-pose bounds of the selected Ultimate Monsters
-// GLBs. Boss profiles describe their Big source model; the shared boss scale
-// below is applied consistently by both render and collision code.
 export const MONSTER_HITBOX_PROFILES = {
 	skitter: {
 		bounds: [1.202, 1.869, 0.076, 0.922, 0.13],
@@ -202,7 +198,7 @@ export function getMonsterCompoundHitboxes(
 	const scale =
 		MONSTER_MODEL_SCALE *
 		(isBoss ? BOSS_MODEL_SCALE : 1) *
-		(Math.max(0.25, Number.isFinite(sizeMultiplier) ? sizeMultiplier : 1));
+		Math.max(0.25, Number.isFinite(sizeMultiplier) ? sizeMultiplier : 1);
 	output.length = parts.length;
 	for (let index = 0; index < parts.length; index++)
 		output[index] = poseMonsterHitboxPart(
@@ -265,7 +261,7 @@ export function getMonsterHitbox(
 	const scale =
 		MONSTER_MODEL_SCALE *
 		(isBoss ? BOSS_MODEL_SCALE : 1) *
-		(Math.max(0.25, Number.isFinite(sizeMultiplier) ? sizeMultiplier : 1));
+		Math.max(0.25, Number.isFinite(sizeMultiplier) ? sizeMultiplier : 1);
 	return {
 		radius: radius * scale,
 		height: height * scale,

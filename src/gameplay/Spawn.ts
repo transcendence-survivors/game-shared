@@ -2,7 +2,6 @@ import type { World } from '../world/World';
 import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
-// Score de 0 (cuvette bloquante) à 8 (plateau plat).
 function openness(world: World, gx: number, gz: number): number {
 	const here = world.tier(gx, gz);
 	let score = 0;
@@ -25,7 +24,6 @@ function openness(world: World, gx: number, gz: number): number {
 	return score;
 }
 
-// Retient la cellule sûre la plus dégagée, puis la plus proche du point préféré.
 export function findSpawnPoint(
 	world: World,
 	preferX: number,

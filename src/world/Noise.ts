@@ -1,6 +1,5 @@
 export type Noise2D = (x: number, y: number) => number;
 
-// Bruit simplex 2D reproductible à partir de la seed.
 export function makeNoise2D(seed: number): Noise2D {
 	let s = seed >>> 0;
 	function rand(): number {

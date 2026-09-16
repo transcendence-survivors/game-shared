@@ -17,13 +17,11 @@ export interface Vec2d {
 	z: number;
 }
 
-/** Integer coordinates identifying one generated world chunk. */
 export interface ChunkCoordinates {
 	chunkX: number;
 	chunkZ: number;
 }
 
-/** Optional direction components accepted when spawning a combat projectile. */
 export interface ProjectileDirection {
 	directionX?: number;
 	directionY?: number;
@@ -103,7 +101,8 @@ export interface WeaponUpgradeDisplayEffect extends UpgradeDisplayEffectBase {
 }
 
 export type UpgradeDisplayEffect =
-	TomeUpgradeDisplayEffect | WeaponUpgradeDisplayEffect;
+	| TomeUpgradeDisplayEffect
+	| WeaponUpgradeDisplayEffect;
 
 export type UpgradeIcon =
 	| 'tomeDamage'

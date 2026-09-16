@@ -96,15 +96,11 @@ export function simulatePlayerMovement(
 		isGrounded = false;
 	}
 	if (!isGrounded) {
-		// Exact constant-acceleration integration is invariant to packet batching:
-		// one 30 Hz server step now matches two 60 Hz prediction steps.
 		y += velocityY * dt - 0.5 * GRAVITY * dt * dt;
 		velocityY -= GRAVITY * dt;
 	}
 	const groundHeight = world.height(x, z);
 	if (world.isSmoothTerrain && isGrounded) {
-		// Follow the continuous slope while walking instead of leaving a small
-		// gap when the player moves between terrain samples.
 		y = groundHeight;
 		velocityY = 0;
 	} else if (y <= groundHeight) {
