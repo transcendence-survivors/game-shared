@@ -11,6 +11,7 @@ export const ClientMessage = {
 	Move: 'move',
 	RequestUpgradeOptions: 'requestUpgradeOptions',
 	SelectUpgrade: 'selectUpgrade',
+	Revive: 'revive',
 	SetDebugImmortal: 'setDebugImmortal',
 	SetDebugMonsterStress: 'setDebugMonsterStress',
 } as const;

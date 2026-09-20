@@ -32,6 +32,10 @@ export const RAY_DIR_Z = 1;
 export const PLAYER_MAX_LIFE = 100;
 export const PLAYER_BASE_RANGE = 8;
 
+export const PLAYER_REVIVE_RADIUS = 6;
+export const REVIVE_DURATION_S = 1;
+export const REVIVE_HEALTH_RATIO = 0.5;
+
 export const PLAYER_AURA_RADIUS = 24;
 export const PLAYER_AURA_ATTACK_SPEED = 1;
 export const WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff', 'bow'] as const;

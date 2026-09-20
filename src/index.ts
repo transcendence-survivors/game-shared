@@ -39,6 +39,7 @@ export { findSpawnPoint } from './gameplay/Spawn';
 
 export {
 	Player,
+	PlayerStats,
 	Monster,
 	GameState,
 	WeaponState,
@@ -85,7 +86,17 @@ export {
 	BOSS_KINDS,
 	MONSTER_MAX_POPULATION,
 	STATE_ENCODER_BUFFER_SIZE,
+	PLAYER_REVIVE_RADIUS,
+	REVIVE_DURATION_S,
+	REVIVE_HEALTH_RATIO,
 } from './utils/Constants';
+
+export {
+	advanceReviveProgress,
+	canRevive,
+	isWithinReviveRange,
+	reviveHealthFor,
+} from './gameplay/Revive';
 
 export {
 	World,

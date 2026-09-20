@@ -104,6 +104,8 @@ export class Player extends Schema {
 	@type('string') animState: 'idle' | 'moving' = 'idle';
 	@type(PlayerStats) stats = new PlayerStats();
 	@type(Life) life = new Life(PLAYER_MAX_LIFE);
+	@type('boolean') isDowned: boolean = false;
+	@type('number') reviveProgress: number = 0;
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();
 	auraCooldownS = 0;
