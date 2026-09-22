@@ -91,8 +91,9 @@ export class PlayerStats extends Schema {
 }
 
 export class Player extends Schema {
-	@type('string') username: string = 'Yoda'; // TODO
-	@type('string') userId: string = ''; // TODO
+	@type('string') username: string = 'Yoda';
+	@type('string') userId: string = '';
+	@type('string') avatarUrl: string = '';
 	@type('number') id: 1 | 2 | 3 | 4 | null = null;
 	@type('number') x: number = 0;
 	@type('number') y: number = 0;

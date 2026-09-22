@@ -151,8 +151,15 @@ export interface WorldSeedMessage {
 	seed: number;
 }
 
+export interface UserInfos {
+	username: string;
+	userId: string;
+	avatarUrl?: string;
+}
+
 export interface GameRoomOptions {
 	roomName: string;
+	user: UserInfos;
 }
 
 export type MonsterKind = (typeof MONSTER_KINDS)[number];
