@@ -11,7 +11,7 @@ export const CARDINAL_GRID_DIRECTIONS: ReadonlyArray<
 ];
 
 export const MAX_DT = 0.1;
-export const SPEED = 30;
+export const SPEED = 12;
 export const GRAVITY = 60;
 export const JUMP_SPEED = 22;
 export const PLAYER_HB_RADIUS = 0.6;
@@ -90,5 +90,5 @@ export const MONSTER_MAX_POPULATION = 1440;
 export const MONSTER_BOSS_SLOT_CAPACITY = 5;
 export const STATE_ENCODER_BUFFER_SIZE = 256 * 1024;
 export const MONSTER_MOVE_SPEED = 7;
-export const MONSTER_ATTACK_RANGE = 1;
+export const MONSTER_ATTACK_RANGE = 0.2;
 export const MONSTER_ATTACK_COOLDOWN_S = 1.4;
