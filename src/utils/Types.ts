@@ -154,6 +154,7 @@ export interface WorldSeedMessage {
 export interface UserInfos {
 	username: string;
 	userId: string;
+	displayName: string;
 	avatarUrl?: string;
 }
 
