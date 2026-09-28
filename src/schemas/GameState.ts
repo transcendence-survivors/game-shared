@@ -143,6 +143,7 @@ export class Monster extends Schema {
 
 export class GameState extends Schema {
 	@type({ map: Player }) players = new MapSchema<Player>();
+	@type({ map: Player }) inactivePlayers = new MapSchema<Player>();
 	@type({ map: Monster }) monsters = new MapSchema<Monster>();
 	@type({ map: CombatEntity }) combatEntities = new MapSchema<CombatEntity>();
 	@type('string') nextBossKind: string = '';
