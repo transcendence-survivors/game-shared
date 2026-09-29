@@ -151,6 +151,6 @@ export class GameState extends Schema {
 	@type('number') rayY: number = 0;
 	@type('number') rayZ: number = 0;
 	@type('boolean') started: boolean = false;
-	seed: number = 0;
+	@type('number') seed: number = 0;
 	@type('number') combatTimeS: number = 0;
 }
