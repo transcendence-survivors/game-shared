@@ -63,6 +63,8 @@ export { rollUpgradeOptions, applyUpgrade } from './gameplay/RollUpgrades';
 
 export {
 	RARITY_CONFIG,
+	TOME_DEFINITIONS,
+	TOME_SLOT_LIMIT,
 	WEAPON_ICONS,
 	toUpgradeOption,
 	type UpgradeDef,

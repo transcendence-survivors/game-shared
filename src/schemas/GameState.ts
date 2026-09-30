@@ -25,7 +25,6 @@ import {
 	type CombatHitboxShape,
 	type MonsterAnimState,
 	type MonsterRank,
-	type TomeId,
 	type WeaponKind,
 } from '../utils/Types';
 
@@ -88,7 +87,7 @@ export class PlayerStats extends Schema {
 	@type('number') duration: number = 1;
 	@type('number') quantity: number = 0;
 	@type('number') penetration: number = 0;
-	tomeLevels = new Map<TomeId, number>();
+	@type({ map: 'number' }) tomeLevels = new MapSchema<number>();
 }
 
 export class Player extends Schema {
