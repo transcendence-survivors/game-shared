@@ -25,6 +25,7 @@ import {
 	type CombatHitboxShape,
 	type MonsterAnimState,
 	type MonsterRank,
+	type TomeId,
 	type WeaponKind,
 } from '../utils/Types';
 
@@ -87,7 +88,7 @@ export class PlayerStats extends Schema {
 	@type('number') duration: number = 1;
 	@type('number') quantity: number = 0;
 	@type('number') penetration: number = 0;
-	tomeLevels = new Map<string, number>();
+	tomeLevels = new Map<TomeId, number>();
 }
 
 export class Player extends Schema {
@@ -101,7 +102,7 @@ export class Player extends Schema {
 	@type('number') rotationY: number = 0;
 	@type('number') velocityY: number = 0;
 	@type('boolean') isGrounded: boolean = true;
-	debugImmortal: boolean = false;
+	@type('boolean') debugImmortal: boolean = false;
 	@type('number') lastProcessedSeq: number = 0;
 	@type('string') animState: 'idle' | 'moving' = 'idle';
 	@type(PlayerStats) stats = new PlayerStats();

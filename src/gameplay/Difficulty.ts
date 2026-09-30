@@ -76,8 +76,8 @@ export const MONSTER_DIRECTOR_CONFIG = {
 	eliteHealthMultiplier: 2.35,
 	eliteDamageMultiplier: 1.3,
 	eliteRewardMultiplier: 2.5,
-	bossFirstTimeS: 300,
-	bossIntervalS: 300,
+	bossFirstTimeS: 120,
+	bossIntervalS: 120,
 	bossHealthPerAdditionalPlayer: 0.3,
 	bossMaxAlive: 1,
 	stages: [
