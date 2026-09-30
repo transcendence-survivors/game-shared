@@ -19,11 +19,11 @@ export const PLAYER_HB_RADIUS = 0.6;
 export const PLAYER_STEP_UP = 0.5;
 
 export const ACCESS_RADIUS = 128;
-/** Maximum distance allowed for the player's center inside the access zone. */
+
 export const PLAYER_ACCESS_RADIUS = ACCESS_RADIUS - PLAYER_HB_RADIUS;
-/** Extra streamed ring kept around the playable circle for terrain chunks. */
+
 const CHUNK_DISPLAY_MARGIN = 4;
-/** Outer radius used by client chunk visibility and monster spawning. */
+
 export const CHUNK_DISPLAY_RADIUS = ACCESS_RADIUS + CHUNK_DISPLAY_MARGIN;
 export const RAY_SPEED = 1;
 export const RAY_DIR_X = 0;
@@ -39,7 +39,16 @@ export const REVIVE_HEALTH_RATIO = 0.5;
 export const PLAYER_AURA_RADIUS = 24;
 export const PLAYER_AURA_ATTACK_SPEED = 1;
 export const WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff', 'bow'] as const;
-export const STARTER_WEAPON_KINDS = ['aura', 'axe'] as const;
+export const STARTER_WEAPON_KINDS = [
+	'aura',
+	'sword',
+	'axe',
+	'staff',
+	'bow',
+] as const;
+
+export type StarterWeaponKind = (typeof STARTER_WEAPON_KINDS)[number];
+
 export const COMBAT_ENTITY_KINDS = [
 	'sword-slash',
 	'axe',
