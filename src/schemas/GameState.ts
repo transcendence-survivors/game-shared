@@ -153,4 +153,5 @@ export class GameState extends Schema {
 	@type('boolean') started: boolean = false;
 	@type('number') seed: number = 0;
 	@type('number') combatTimeS: number = 0;
+	@type('number') totalKills: number = 0;
 }
