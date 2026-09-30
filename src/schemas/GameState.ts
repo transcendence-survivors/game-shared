@@ -87,7 +87,7 @@ export class PlayerStats extends Schema {
 	@type('number') duration: number = 1;
 	@type('number') quantity: number = 0;
 	@type('number') penetration: number = 0;
-	tomeLevels = new Map<string, number>();
+	@type({ map: 'number' }) tomeLevels = new MapSchema<number>();
 }
 
 export class Player extends Schema {
