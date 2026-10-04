@@ -265,7 +265,7 @@ export const MONSTER_DEFINITIONS = {
 		role: 'boss',
 		modelId: 'orcSkull',
 		displayName: 'Arakhnos',
-		baseStats: normalStats(1500, 12, 3.8, 2.2, 1.8, 0.65),
+		baseStats: normalStats(1500, 12, 3.8, 2.2, 1.8, 0.92),
 		ai: normalAi('boss', {
 			specialKind: 'summon',
 			specialCooldownS: 6,
@@ -282,7 +282,7 @@ export const MONSTER_DEFINITIONS = {
 		role: 'boss',
 		modelId: 'yeti',
 		displayName: 'Gorvath',
-		baseStats: normalStats(2100, 16, 3.1, 2.8, 2.5, 0.9),
+		baseStats: normalStats(2100, 16, 3.1, 2.8, 2.5, 0.97),
 		ai: normalAi('boss', {
 			specialKind: 'slam',
 			specialCooldownS: 5.5,
@@ -299,7 +299,7 @@ export const MONSTER_DEFINITIONS = {
 		role: 'boss',
 		modelId: 'demon',
 		displayName: 'Khimaera',
-		baseStats: normalStats(1750, 13, 4.5, 2, 1.9, 0.45),
+		baseStats: normalStats(1750, 13, 4.5, 2, 1.9, 0.9),
 		ai: normalAi('boss', {
 			preferredRange: 11,
 			retreatRange: 6,
@@ -318,7 +318,7 @@ export const MONSTER_DEFINITIONS = {
 		role: 'boss',
 		modelId: 'mushroomKing',
 		displayName: 'Abyssor',
-		baseStats: normalStats(2400, 11, 2.8, 2.3, 2.1, 0.72),
+		baseStats: normalStats(2400, 11, 2.8, 2.3, 2.1, 0.94),
 		ai: normalAi('boss', {
 			specialKind: 'summon',
 			specialCooldownS: 7,
