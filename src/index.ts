@@ -8,6 +8,7 @@ export * from './schemas/GameState';
 export * from './schemas/Life';
 export * from './schemas/Experience';
 export * from './world/World';
+export { mulberry32 } from './world/Noise';
 export * from './gameplay/Collisions';
 export * from './gameplay/Spawn';
 export * from './gameplay/RollUpgrades';

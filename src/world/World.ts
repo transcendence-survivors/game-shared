@@ -154,7 +154,6 @@ export class World {
 	}
 
 	tier(gx: number, gz: number): number {
-		if (this.fillR <= 0) return this.clamped(gx, gz);
 		const k = keyOf(gx, gz);
 		const cached = this.closeCache.get(k);
 		if (cached !== undefined) return cached;
@@ -284,23 +283,16 @@ export class World {
 		const u = wx / step - gx;
 		const v = wz / step - gz;
 		const { h00, h10, h01, h11 } = this.surfaceCellHeights(gx, gz, step);
-		if (u + v <= 1) {
-			result.height = h00 + (h10 - h00) * u + (h01 - h00) * v;
-			const nx = -step * (h10 - h00);
-			const nz = -step * (h01 - h00);
-			const length = Math.hypot(nx, step * step, nz);
-			result.x = nx / length;
-			result.y = (step * step) / length;
-			result.z = nz / length;
-		} else {
-			result.height = h10 * (1 - v) + h01 * (1 - u) + h11 * (u + v - 1);
-			const nx = step * (h01 - h11);
-			const nz = -step * (h11 - h10);
-			const length = Math.hypot(nx, step * step, nz);
-			result.x = nx / length;
-			result.y = (step * step) / length;
-			result.z = nz / length;
-		}
+		const lower = u + v <= 1;
+		result.height = lower
+			? h00 + (h10 - h00) * u + (h01 - h00) * v
+			: h10 * (1 - v) + h01 * (1 - u) + h11 * (u + v - 1);
+		const nx = lower ? -step * (h10 - h00) : step * (h01 - h11);
+		const nz = -step * (lower ? h01 - h00 : h11 - h10);
+		const length = Math.hypot(nx, step * step, nz);
+		result.x = nx / length;
+		result.y = (step * step) / length;
+		result.z = nz / length;
 		return result;
 	}
 
