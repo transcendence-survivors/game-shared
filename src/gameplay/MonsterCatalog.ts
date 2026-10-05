@@ -61,7 +61,7 @@ export interface MonsterDefinition {
 
 const normalAi = (
 	kind: MonsterAiKind,
-	options: Partial<Omit<MonsterAiConfig, 'kind'>> = {},
+	options: Partial<MonsterAiConfig> = {},
 ): MonsterAiConfig => ({
 	kind,
 	movementSpeedMultiplier: 1,
@@ -80,255 +80,206 @@ const normalAi = (
 	...options,
 });
 
-const normalSpawn = (
-	weight: number,
-	minTimeS: number,
-	cost = 1,
-): MonsterSpawnConfig => ({
-	weight,
-	minTimeS,
-	cost,
-	canBeElite: true,
-});
+interface MonsterSpec {
+	/** maxLife, damage, moveSpeed, attackRange, attackCooldownS, knockbackResistance */
+	stats: readonly [number, number, number, number, number, number];
+	/** weight, minTimeS, cost (default 1); omitted for bosses */
+	spawn?: readonly [number, number, number?];
+	xp: number;
+	scale?: number;
+	/** overrides of the default AI; `kind` defaults to the role */
+	ai?: Partial<MonsterAiConfig>;
+	onDeath?: MonsterDefinition['onDeath'];
+}
 
-const normalStats = (
-	maxLife: number,
-	damage: number,
-	moveSpeed: number,
-	attackRange: number,
-	attackCooldownS: number,
-	knockbackResistance: number,
-): MonsterBaseStats => ({
-	maxLife,
-	damage,
-	moveSpeed,
-	attackRange,
-	attackCooldownS,
-	knockbackResistance,
-});
+/** Keeps literal kind/role/modelId/displayName types (ui indexes models by modelId). */
+function def<
+	const K extends MonsterKind | BossKind,
+	const R extends MonsterRole,
+	const M extends string,
+	const N extends string,
+>(
+	kind: K,
+	role: R,
+	modelId: M,
+	displayName: N,
+	{ stats, spawn, xp, scale = 1, ai, onDeath }: MonsterSpec,
+): MonsterDefinition & {
+	kind: K;
+	role: R;
+	modelId: M;
+	displayName: N;
+} {
+	const [maxLife, damage, moveSpeed, attackRange, attackCooldownS, kbRes] =
+		stats;
+	return {
+		kind,
+		rank: role === 'boss' ? 'boss' : 'normal',
+		role,
+		modelId,
+		displayName,
+		baseStats: {
+			maxLife,
+			damage,
+			moveSpeed,
+			attackRange,
+			attackCooldownS,
+			knockbackResistance: kbRes,
+		},
+		ai: normalAi(role, ai),
+		spawn: spawn
+			? {
+					weight: spawn[0],
+					minTimeS: spawn[1],
+					cost: spawn[2] ?? 1,
+					canBeElite: true,
+				}
+			: { weight: 0, minTimeS: 300, cost: 0, canBeElite: false },
+		rewardXp: xp,
+		visualScale: scale,
+		...(onDeath && { onDeath }),
+	};
+}
 
 export const MONSTER_DEFINITIONS = {
-	grunt: {
-		kind: 'grunt',
-		rank: 'normal',
-		role: 'chaser',
-		modelId: 'dog',
-		displayName: 'Hound',
-		baseStats: normalStats(38, 4, 7.2, 1, 1.4, 0),
-		ai: normalAi('chaser'),
-		spawn: normalSpawn(36, 0),
-		rewardXp: 6,
-		visualScale: 1,
-	},
-	skitter: {
-		kind: 'skitter',
-		rank: 'normal',
-		role: 'swarm',
-		modelId: 'blob',
-		displayName: 'Skitter',
-		baseStats: normalStats(22, 2.5, 10.5, 0.8, 1.8, 0),
-		ai: normalAi('swarm', { movementSpeedMultiplier: 1.03 }),
-		spawn: normalSpawn(30, 0),
-		rewardXp: 5,
-		visualScale: 0.82,
-	},
-	kraklet: {
-		kind: 'kraklet',
-		rank: 'normal',
-		role: 'tank',
-		modelId: 'cactoro',
-		displayName: 'Kraklet',
-		baseStats: normalStats(115, 7, 4.2, 1.25, 1.9, 0.72),
-		ai: normalAi('tank'),
-		spawn: normalSpawn(10, 90),
-		rewardXp: 14,
-		visualScale: 1.08,
-	},
-	ravager: {
-		kind: 'ravager',
-		rank: 'normal',
-		role: 'charger',
-		modelId: 'ninja',
-		displayName: 'Ravager',
-		baseStats: normalStats(48, 8, 6.2, 1.1, 1.8, 0.15),
-		ai: normalAi('charger', {
+	grunt: def('grunt', 'chaser', 'dog', 'Hound', {
+		stats: [38, 4, 7.2, 1, 1.4, 0],
+		spawn: [36, 0],
+		xp: 6,
+	}),
+	skitter: def('skitter', 'swarm', 'blob', 'Skitter', {
+		stats: [22, 2.5, 10.5, 0.8, 1.8, 0],
+		spawn: [30, 0],
+		xp: 5,
+		scale: 0.82,
+		ai: { movementSpeedMultiplier: 1.03 },
+	}),
+	kraklet: def('kraklet', 'tank', 'cactoro', 'Kraklet', {
+		stats: [115, 7, 4.2, 1.25, 1.9, 0.72],
+		spawn: [10, 90],
+		xp: 14,
+		scale: 1.08,
+	}),
+	ravager: def('ravager', 'charger', 'ninja', 'Ravager', {
+		stats: [48, 8, 6.2, 1.1, 1.8, 0.15],
+		spawn: [14, 120],
+		xp: 11,
+		ai: {
 			chargeSpeedMultiplier: 2.4,
 			chargeDurationS: 0.75,
 			chargeCooldownS: 5,
-		}),
-		spawn: normalSpawn(14, 120),
-		rewardXp: 11,
-		visualScale: 1,
-	},
-	venomweb: {
-		kind: 'venomweb',
-		rank: 'normal',
-		role: 'ranged',
-		modelId: 'spikyBlob',
-		displayName: 'Venomweb',
-		baseStats: normalStats(58, 5, 4.4, 1, 2.1, 0.2),
-		ai: normalAi('ranged', {
+		},
+	}),
+	venomweb: def('venomweb', 'ranged', 'spikyBlob', 'Venomweb', {
+		stats: [58, 5, 4.4, 1, 2.1, 0.2],
+		spawn: [12, 180],
+		xp: 12,
+		scale: 0.95,
+		ai: {
 			preferredRange: 12,
 			retreatRange: 7,
 			specialKind: 'burst',
 			specialCooldownS: 4.5,
 			specialRadius: 2.4,
 			specialDamageMultiplier: 0.75,
-		}),
-		spawn: normalSpawn(12, 180),
-		rewardXp: 12,
-		visualScale: 0.95,
-	},
-	bomber: {
-		kind: 'bomber',
-		rank: 'normal',
-		role: 'bomber',
-		modelId: 'mushnub',
-		displayName: 'Bombardier',
-		baseStats: normalStats(34, 5, 8, 1.25, 2.4, 0.05),
-		ai: normalAi('bomber', {
+		},
+	}),
+	bomber: def('bomber', 'bomber', 'mushnub', 'Bombardier', {
+		stats: [34, 5, 8, 1.25, 2.4, 0.05],
+		spawn: [8, 300],
+		xp: 13,
+		scale: 0.9,
+		ai: {
 			specialKind: 'burst',
 			specialCooldownS: 2.5,
 			specialRadius: 4.5,
 			specialDamageMultiplier: 2.2,
-		}),
-		spawn: normalSpawn(8, 300),
-		rewardXp: 13,
-		visualScale: 0.9,
-	},
-	splitter: {
-		kind: 'splitter',
-		rank: 'normal',
-		role: 'swarm',
-		modelId: 'pinkBlob',
-		displayName: 'Splitter',
-		baseStats: normalStats(70, 4.5, 5.4, 1, 1.9, 0.25),
-		ai: normalAi('chaser'),
-		spawn: normalSpawn(8, 360),
-		rewardXp: 17,
-		visualScale: 1.05,
+		},
+	}),
+	splitter: def('splitter', 'swarm', 'pinkBlob', 'Splitter', {
+		stats: [70, 4.5, 5.4, 1, 1.9, 0.25],
+		spawn: [8, 360],
+		xp: 17,
+		scale: 1.05,
+		ai: { kind: 'chaser' },
 		onDeath: { kind: 'skitter', count: 2 },
-	},
-	necromancer: {
-		kind: 'necromancer',
-		rank: 'normal',
-		role: 'summoner',
-		modelId: 'wizard',
-		displayName: 'Gravecaller',
-		baseStats: normalStats(92, 4, 3.5, 1, 2.2, 0.35),
-		ai: normalAi('summoner', {
+	}),
+	necromancer: def('necromancer', 'summoner', 'wizard', 'Gravecaller', {
+		stats: [92, 4, 3.5, 1, 2.2, 0.35],
+		spawn: [6, 480, 2],
+		xp: 22,
+		scale: 1.02,
+		ai: {
 			preferredRange: 14,
 			retreatRange: 8,
 			specialKind: 'summon',
 			specialCooldownS: 7,
 			summonKind: 'skitter',
 			summonCount: 2,
-		}),
-		spawn: normalSpawn(6, 480, 2),
-		rewardXp: 22,
-		visualScale: 1.02,
-	},
-	wisp: {
-		kind: 'wisp',
-		rank: 'normal',
-		role: 'ranged',
-		modelId: 'ghost',
-		displayName: 'Wisp',
-		baseStats: normalStats(30, 6, 9.2, 0.9, 1.6, 0.05),
-		ai: normalAi('ranged', {
+		},
+	}),
+	wisp: def('wisp', 'ranged', 'ghost', 'Wisp', {
+		stats: [30, 6, 9.2, 0.9, 1.6, 0.05],
+		spawn: [7, 600],
+		xp: 15,
+		scale: 0.72,
+		ai: {
 			preferredRange: 9,
 			retreatRange: 5,
 			specialKind: 'burst',
 			specialCooldownS: 3.2,
 			specialRadius: 1.8,
 			specialDamageMultiplier: 0.65,
-		}),
-		spawn: normalSpawn(7, 600),
-		rewardXp: 15,
-		visualScale: 0.72,
-	},
-	brute: {
-		kind: 'brute',
-		rank: 'normal',
-		role: 'tank',
-		modelId: 'orc',
-		displayName: 'Brute',
-		baseStats: normalStats(190, 10, 3.1, 1.5, 2.5, 0.88),
-		ai: normalAi('tank'),
-		spawn: normalSpawn(4, 720, 2),
-		rewardXp: 30,
-		visualScale: 1.28,
-	},
-	arakhnos: {
-		kind: 'arakhnos',
-		rank: 'boss',
-		role: 'boss',
-		modelId: 'orcSkull',
-		displayName: 'Arakhnos',
-		baseStats: normalStats(1500, 12, 3.8, 2.2, 1.8, 0.92),
-		ai: normalAi('boss', {
+		},
+	}),
+	brute: def('brute', 'tank', 'orc', 'Brute', {
+		stats: [190, 10, 3.1, 1.5, 2.5, 0.88],
+		spawn: [4, 720, 2],
+		xp: 30,
+		scale: 1.28,
+	}),
+	arakhnos: def('arakhnos', 'boss', 'orcSkull', 'Arakhnos', {
+		stats: [1500, 12, 3.8, 2.2, 1.8, 0.92],
+		xp: 260,
+		ai: {
 			specialKind: 'summon',
 			specialCooldownS: 6,
 			summonKind: 'skitter',
 			summonCount: 4,
-		}),
-		spawn: { weight: 0, minTimeS: 300, cost: 0, canBeElite: false },
-		rewardXp: 260,
-		visualScale: 1,
-	},
-	gorvath: {
-		kind: 'gorvath',
-		rank: 'boss',
-		role: 'boss',
-		modelId: 'yeti',
-		displayName: 'Gorvath',
-		baseStats: normalStats(2100, 16, 3.1, 2.8, 2.5, 0.97),
-		ai: normalAi('boss', {
+		},
+	}),
+	gorvath: def('gorvath', 'boss', 'yeti', 'Gorvath', {
+		stats: [2100, 16, 3.1, 2.8, 2.5, 0.97],
+		xp: 320,
+		ai: {
 			specialKind: 'slam',
 			specialCooldownS: 5.5,
 			specialRadius: 7,
 			specialDamageMultiplier: 1.25,
-		}),
-		spawn: { weight: 0, minTimeS: 300, cost: 0, canBeElite: false },
-		rewardXp: 320,
-		visualScale: 1,
-	},
-	khimaera: {
-		kind: 'khimaera',
-		rank: 'boss',
-		role: 'boss',
-		modelId: 'demon',
-		displayName: 'Khimaera',
-		baseStats: normalStats(1750, 13, 4.5, 2, 1.9, 0.9),
-		ai: normalAi('boss', {
+		},
+	}),
+	khimaera: def('khimaera', 'boss', 'demon', 'Khimaera', {
+		stats: [1750, 13, 4.5, 2, 1.9, 0.9],
+		xp: 300,
+		ai: {
 			preferredRange: 11,
 			retreatRange: 6,
 			specialKind: 'burst',
 			specialCooldownS: 4,
 			specialRadius: 3.5,
 			specialDamageMultiplier: 1.35,
-		}),
-		spawn: { weight: 0, minTimeS: 300, cost: 0, canBeElite: false },
-		rewardXp: 300,
-		visualScale: 1,
-	},
-	abyssor: {
-		kind: 'abyssor',
-		rank: 'boss',
-		role: 'boss',
-		modelId: 'mushroomKing',
-		displayName: 'Abyssor',
-		baseStats: normalStats(2400, 11, 2.8, 2.3, 2.1, 0.94),
-		ai: normalAi('boss', {
+		},
+	}),
+	abyssor: def('abyssor', 'boss', 'mushroomKing', 'Abyssor', {
+		stats: [2400, 11, 2.8, 2.3, 2.1, 0.94],
+		xp: 380,
+		ai: {
 			specialKind: 'summon',
 			specialCooldownS: 7,
 			summonKind: 'venomweb',
 			summonCount: 3,
-		}),
-		spawn: { weight: 0, minTimeS: 300, cost: 0, canBeElite: false },
-		rewardXp: 380,
-		visualScale: 1,
-	},
+		},
+	}),
 } as const satisfies Readonly<
 	Record<MonsterKind | BossKind, MonsterDefinition>
 >;
@@ -342,16 +293,4 @@ export function getMonsterDefinition(kind: string) {
 export function isBossKind(kind: string): kind is BossKind {
 	const definition = getMonsterDefinition(kind);
 	return definition?.rank === 'boss';
-}
-
-export function normalMonsterDefinitions(
-	elapsedSeconds: number,
-): readonly MonsterDefinition[] {
-	const elapsed = Number.isFinite(elapsedSeconds)
-		? Math.max(0, elapsedSeconds)
-		: 0;
-	return Object.values(MONSTER_DEFINITIONS).filter(
-		(definition) =>
-			definition.rank !== 'boss' && definition.spawn.minTimeS <= elapsed,
-	);
 }

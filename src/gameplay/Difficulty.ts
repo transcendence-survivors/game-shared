@@ -24,6 +24,35 @@ export interface DifficultyStage {
 	eliteChance: number;
 }
 
+const stage = (
+	startTimeS: number,
+	healthMultiplier: number,
+	damageMultiplier: number,
+	speedMultiplier: number,
+	rewardMultiplier: number,
+	spawnRate: number,
+	population: number,
+): DifficultyStage => ({
+	startTimeS,
+	healthMultiplier,
+	damageMultiplier,
+	speedMultiplier,
+	rewardMultiplier,
+	spawnRate,
+	population,
+	eliteChance: 0.05,
+});
+
+const INTERPOLATED_KEYS = [
+	'healthMultiplier',
+	'damageMultiplier',
+	'speedMultiplier',
+	'rewardMultiplier',
+	'spawnRate',
+	'population',
+	'eliteChance',
+] as const satisfies readonly (keyof DifficultyStage)[];
+
 export const MONSTER_DIRECTOR_CONFIG = {
 	initialSpawnDelayS: 0.5,
 	maxPopulation: MONSTER_MAX_POPULATION,
@@ -81,86 +110,15 @@ export const MONSTER_DIRECTOR_CONFIG = {
 	bossHealthPerAdditionalPlayer: 0.3,
 	bossMaxAlive: 1,
 	stages: [
-		{
-			startTimeS: 0,
-			healthMultiplier: 0.72,
-			damageMultiplier: 0.65,
-			speedMultiplier: 0.92,
-			rewardMultiplier: 1,
-			spawnRate: 8,
-			population: MONSTER_BASE_POPULATION,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 120,
-			healthMultiplier: 0.82,
-			damageMultiplier: 0.72,
-			speedMultiplier: 0.96,
-			rewardMultiplier: 1.02,
-			spawnRate: 10,
-			population: 30,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 300,
-			healthMultiplier: 0.95,
-			damageMultiplier: 0.82,
-			speedMultiplier: 1,
-			rewardMultiplier: 1.05,
-			spawnRate: 13,
-			population: 52,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 600,
-			healthMultiplier: 1.1,
-			damageMultiplier: 0.95,
-			speedMultiplier: 1.04,
-			rewardMultiplier: 1.1,
-			spawnRate: 17,
-			population: 82,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 900,
-			healthMultiplier: 1.28,
-			damageMultiplier: 1.08,
-			speedMultiplier: 1.08,
-			rewardMultiplier: 1.16,
-			spawnRate: 21,
-			population: 112,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 1200,
-			healthMultiplier: 1.48,
-			damageMultiplier: 1.22,
-			speedMultiplier: 1.12,
-			rewardMultiplier: 1.22,
-			spawnRate: 25,
-			population: 140,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 1800,
-			healthMultiplier: 1.72,
-			damageMultiplier: 1.38,
-			speedMultiplier: 1.16,
-			rewardMultiplier: 1.3,
-			spawnRate: 29,
-			population: 165,
-			eliteChance: 0.05,
-		},
-		{
-			startTimeS: 2400,
-			healthMultiplier: 2,
-			damageMultiplier: 1.55,
-			speedMultiplier: 1.2,
-			rewardMultiplier: 1.38,
-			spawnRate: 33,
-			population: MONSTER_MAX_POPULATION,
-			eliteChance: 0.05,
-		},
+		// startTimeS, health, damage, speed, reward, spawnRate, population
+		stage(0, 0.72, 0.65, 0.92, 1, 8, MONSTER_BASE_POPULATION),
+		stage(120, 0.82, 0.72, 0.96, 1.02, 10, 30),
+		stage(300, 0.95, 0.82, 1, 1.05, 13, 52),
+		stage(600, 1.1, 0.95, 1.04, 1.1, 17, 82),
+		stage(900, 1.28, 1.08, 1.08, 1.16, 21, 112),
+		stage(1200, 1.48, 1.22, 1.12, 1.22, 25, 140),
+		stage(1800, 1.72, 1.38, 1.16, 1.3, 29, 165),
+		stage(2400, 2, 1.55, 1.2, 1.38, 33, MONSTER_MAX_POPULATION),
 	] as const satisfies readonly DifficultyStage[],
 } as const;
 
@@ -176,49 +134,18 @@ export function difficultyStageAt(elapsedSeconds: number): DifficultyStage {
 	const stages = MONSTER_DIRECTOR_CONFIG.stages;
 	let current: DifficultyStage = stages[0];
 	for (let index = 1; index < stages.length; index++) {
-		if (elapsed < stages[index].startTimeS) {
-			const next = stages[index];
+		const next: DifficultyStage = stages[index];
+		if (elapsed < next.startTimeS) {
 			const amount =
 				(elapsed - current.startTimeS) /
 				(next.startTimeS - current.startTimeS);
-			return {
-				startTimeS: current.startTimeS,
-				healthMultiplier: interpolate(
-					current.healthMultiplier,
-					next.healthMultiplier,
-					amount,
-				),
-				damageMultiplier: interpolate(
-					current.damageMultiplier,
-					next.damageMultiplier,
-					amount,
-				),
-				speedMultiplier: interpolate(
-					current.speedMultiplier,
-					next.speedMultiplier,
-					amount,
-				),
-				rewardMultiplier: interpolate(
-					current.rewardMultiplier,
-					next.rewardMultiplier,
-					amount,
-				),
-				spawnRate: interpolate(
-					current.spawnRate,
-					next.spawnRate,
-					amount,
-				),
-				population: Math.round(
-					interpolate(current.population, next.population, amount),
-				),
-				eliteChance: interpolate(
-					current.eliteChance,
-					next.eliteChance,
-					amount,
-				),
-			};
+			const result = { ...current };
+			for (const key of INTERPOLATED_KEYS)
+				result[key] = interpolate(current[key], next[key], amount);
+			result.population = Math.round(result.population);
+			return result;
 		}
-		current = stages[index];
+		current = next;
 	}
 	return current;
 }
