@@ -43,8 +43,6 @@ export type WeaponKind = (typeof WEAPON_KINDS)[number];
 
 export type UpgradeRarity = (typeof UPGRADE_RARITIES)[number];
 
-export type UpgradeCategory = 'tome' | 'weapon' | 'unlock';
-
 export type TomeStat =
 	| 'attackDamage'
 	| 'attackSpeed'

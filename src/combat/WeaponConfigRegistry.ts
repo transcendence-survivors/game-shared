@@ -209,10 +209,6 @@ export class WeaponConfigRegistry {
 			Extract<WeaponConfig, { kind: TKind }>
 		>;
 	}
-
-	all(): readonly Readonly<WeaponConfig>[] {
-		return WEAPON_KINDS.map((kind) => this.configs.get(kind)!);
-	}
 }
 
 export const weaponConfigRegistry = new WeaponConfigRegistry();

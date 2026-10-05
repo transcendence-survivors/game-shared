@@ -19,8 +19,4 @@ export class Experience extends Schema {
 			this.xpToNextLevel = xpRequiredForLevel(this.level);
 		}
 	}
-
-	ratio(): number {
-		return this.xp / this.xpToNextLevel;
-	}
 }

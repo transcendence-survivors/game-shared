@@ -25,10 +25,6 @@ export class Life extends Schema {
 		this.current = Math.min(this.max, this.current + amount);
 	}
 
-	refill() {
-		this.current = this.max;
-	}
-
 	rescale(newMax: number) {
 		if (!Number.isFinite(newMax) || newMax <= 0) return;
 		const ratio = this.ratio();

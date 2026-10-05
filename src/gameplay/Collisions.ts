@@ -248,23 +248,3 @@ export function resolveTerrainCollision(
 	output.z = currentPos.z;
 	return output;
 }
-
-export function groundHeightUnderHitbox(world: World, x: number, z: number) {
-	const offsets: Array<[number, number]> = [
-		[0, 0],
-		[PLAYER_HB_RADIUS, 0],
-		[-PLAYER_HB_RADIUS, 0],
-		[0, PLAYER_HB_RADIUS],
-		[0, -PLAYER_HB_RADIUS],
-		[PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
-		[-PLAYER_HB_RADIUS, PLAYER_HB_RADIUS],
-		[PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
-		[-PLAYER_HB_RADIUS, -PLAYER_HB_RADIUS],
-	];
-	let maxH = -Infinity;
-	for (const [dx, dz] of offsets) {
-		const h = world.height(x + dx, z + dz);
-		if (h > maxH) maxH = h;
-	}
-	return maxH;
-}
