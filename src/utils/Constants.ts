@@ -39,13 +39,7 @@ export const REVIVE_HEALTH_RATIO = 0.5;
 export const PLAYER_AURA_RADIUS = 24;
 export const PLAYER_AURA_ATTACK_SPEED = 1;
 export const WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff', 'bow'] as const;
-export const STARTER_WEAPON_KINDS = [
-	'aura',
-	'sword',
-	'axe',
-	'staff',
-	'bow',
-] as const;
+export const STARTER_WEAPON_KINDS = ['aura', 'sword', 'axe', 'staff'] as const;
 
 export type StarterWeaponKind = (typeof STARTER_WEAPON_KINDS)[number];
 
