@@ -56,8 +56,6 @@ export const WEAPON_CONFIGS = [
 		baseAttackRate: 0.25,
 		baseProjectileSpeed: 14,
 		baseTravelDistance: 8,
-		// Le pivot du GLB est decentre vers le manche. A l'echelle visuelle 2,
-		// l'extremite opposee balaie environ 3.1 unites autour de ce pivot.
 		baseContactRadius: 3.15,
 		baseContactHeight: 0.6,
 		damageIntervalS: 0.5,
