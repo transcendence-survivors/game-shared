@@ -2,12 +2,6 @@ import { makeNoise2D, type Noise2D } from './Noise';
 import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
-export interface WorldColor {
-	r: number;
-	g: number;
-	b: number;
-}
-
 export type WorldNormal = Vec3d;
 
 export interface WorldSurfaceSample extends WorldNormal {
@@ -23,10 +17,6 @@ interface SurfaceCellHeights {
 
 export const TERRAIN_SUBDIVISIONS_PER_CELL = 4;
 
-const GRASS = { r: 0.36, g: 0.55, b: 0.27 };
-const DARK_GRASS = { r: 0.3, g: 0.48, b: 0.23 };
-const ROCK = { r: 0.5, g: 0.47, b: 0.43 };
-const SNOW = { r: 0.95, g: 0.96, b: 0.98 };
 const RAW_CACHE_LIMIT = 1_000_000;
 const DERIVED_CACHE_LIMIT = 250_000;
 const CACHE_EVICTION_BATCH = 4_096;
@@ -41,10 +31,6 @@ export function lerp(a: number, b: number, t: number): number {
 
 export function clamp01(value: number): number {
 	return value < 0 ? 0 : value > 1 ? 1 : value;
-}
-
-function mixC(a: WorldColor, b: WorldColor, t: number): WorldColor {
-	return { r: lerp(a.r, b.r, t), g: lerp(a.g, b.g, t), b: lerp(a.b, b.b, t) };
 }
 
 function setBoundedCache<K, V>(
@@ -67,7 +53,6 @@ export class World {
 	readonly seed: number;
 	readonly CELL = 12;
 	readonly N = 4;
-	readonly STEP = 10;
 	readonly TIERS = 8;
 	readonly isSmoothTerrain = true;
 	private readonly terrainBaseHeight = 24;
@@ -87,7 +72,6 @@ export class World {
 	private rampCache = new Map<number, readonly [number, number] | null>();
 	private surfaceHeightCache = new Map<number, number>();
 	private surfaceCellCache = new Map<number, SurfaceCellHeights>();
-	private topColorCache: WorldColor[] = [];
 
 	constructor(seed: number) {
 		this.seed = seed >>> 0;
@@ -183,20 +167,6 @@ export class World {
 			}
 		setBoundedCache(this.closeCache, k, m, DERIVED_CACHE_LIMIT);
 		return m;
-	}
-
-	topColor(T: number): WorldColor {
-		const cached = this.topColorCache[T];
-		if (cached) return cached;
-		const t = this.TIERS <= 1 ? 0 : T / (this.TIERS - 1);
-		const color =
-			t < 0.6
-				? mixC(GRASS, DARK_GRASS, t / 0.6)
-				: t < 0.85
-					? mixC(DARK_GRASS, ROCK, (t - 0.6) / 0.25)
-					: mixC(ROCK, SNOW, (t - 0.85) / 0.15);
-		this.topColorCache[T] = color;
-		return color;
 	}
 
 	private hash(gx: number, gz: number): number {
@@ -334,15 +304,6 @@ export class World {
 		return result;
 	}
 
-	sampleSurface(wx: number, wz: number): WorldSurfaceSample {
-		return this.sampleSurfaceToRef(wx, wz, {
-			height: 0,
-			x: 0,
-			y: 1,
-			z: 0,
-		});
-	}
-
 	height(wx: number, wz: number): number {
 		const step = this.CELL / TERRAIN_SUBDIVISIONS_PER_CELL;
 		const gx = Math.floor(wx / step);
@@ -352,26 +313,5 @@ export class World {
 		const { h00, h10, h01, h11 } = this.surfaceCellHeights(gx, gz, step);
 		if (u + v <= 1) return h00 + (h10 - h00) * u + (h01 - h00) * v;
 		return h10 * (1 - v) + h01 * (1 - u) + h11 * (u + v - 1);
-	}
-
-	groundNormal(wx: number, wz: number): WorldNormal {
-		const step = this.CELL / TERRAIN_SUBDIVISIONS_PER_CELL;
-		const gx = Math.floor(wx / step);
-		const gz = Math.floor(wz / step);
-		const u = wx / step - gx;
-		const v = wz / step - gz;
-		const { h00, h10, h01, h11 } = this.surfaceCellHeights(gx, gz, step);
-		let nx: number;
-		let ny = step * step;
-		let nz: number;
-		if (u + v <= 1) {
-			nx = -step * (h10 - h00);
-			nz = -step * (h01 - h00);
-		} else {
-			nx = step * (h01 - h11);
-			nz = -step * (h11 - h10);
-		}
-		const length = Math.hypot(nx, ny, nz);
-		return { x: nx / length, y: ny / length, z: nz / length };
 	}
 }

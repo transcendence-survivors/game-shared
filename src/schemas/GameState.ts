@@ -110,7 +110,6 @@ export class Player extends Schema {
 	@type('number') reviveProgress: number = 0;
 	@type(Experience) experience = new Experience();
 	@type(Aura) aura = new Aura();
-	auraCooldownS = 0;
 	@type('boolean') ready: boolean = false;
 	@type({ map: WeaponState }) weapons = new MapSchema<WeaponState>();
 }
@@ -136,9 +135,6 @@ export class Monster extends Schema {
 	@type(Life) life = new Life(MONSTER_BASE_LIFE);
 	sizeMultiplier = 1;
 	knockbackResistance = 0;
-	hpMultiplier = 1;
-	damageMultiplier = 1;
-	attackCooldownS = 0;
 }
 
 export class GameState extends Schema {
