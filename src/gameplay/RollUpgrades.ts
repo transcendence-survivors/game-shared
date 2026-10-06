@@ -35,10 +35,7 @@ function shuffleInPlace<T>(values: T[], random: () => number): T[] {
 	return values;
 }
 
-export function rollUpgradeRarity(
-	luck: number,
-	random: () => number,
-): UpgradeRarity {
+function rollUpgradeRarity(luck: number, random: () => number): UpgradeRarity {
 	const safeLuck = Number.isFinite(luck) ? Math.max(1, luck) : 1;
 	let total = 0;
 	for (const rarity of UPGRADE_RARITIES) {
@@ -145,7 +142,7 @@ function unlockWeapon(
 	};
 }
 
-export function canApplyUpgrade(player: Player, upgrade: UpgradeDef): boolean {
+function canApplyUpgrade(player: Player, upgrade: UpgradeDef): boolean {
 	const effect = upgrade.effect;
 	if (effect.kind === 'tome') {
 		const current = player.stats.tomeLevels.get(effect.tomeId) ?? 0;

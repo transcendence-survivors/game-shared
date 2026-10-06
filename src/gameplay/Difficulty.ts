@@ -13,7 +13,7 @@ import {
 } from '../utils/Constants';
 import { getMonsterDefinition } from './MonsterCatalog';
 
-export interface DifficultyStage {
+interface DifficultyStage {
 	startTimeS: number;
 	healthMultiplier: number;
 	damageMultiplier: number;

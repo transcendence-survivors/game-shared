@@ -1,7 +1,5 @@
 import type { CombatLimits, WeaponConfig } from './WeaponConfig';
 
-export const COMBAT_CONFIG_VERSION = 1;
-
 export const COMBAT_LIMITS = {
 	maxPlayers: 4,
 	maxWeaponsPerPlayer: 3,

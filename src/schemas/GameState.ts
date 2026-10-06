@@ -63,11 +63,10 @@ export class CombatEntity extends Schema {
 	@type('number') hitboxWidth: number = 0;
 	@type('number') hitboxDepth: number = 0;
 	@type('number') hitboxHalfAngle: number = 0;
-	spawnSequence: number = 0;
 	expiresAtS: number = 0;
 }
 
-export class Aura extends Schema {
+class Aura extends Schema {
 	@type('number') radius: number = PLAYER_AURA_RADIUS;
 	@type('number') attackSpeed: number = PLAYER_AURA_ATTACK_SPEED;
 	@type('number') height: number = 3;

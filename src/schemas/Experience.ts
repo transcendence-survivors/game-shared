@@ -1,7 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 import { XP_BASE_TO_LEVEL, XP_LEVEL_GROWTH } from '../utils/Constants';
 
-export function xpRequiredForLevel(level: number): number {
+function xpRequiredForLevel(level: number): number {
 	return Math.round(XP_BASE_TO_LEVEL * Math.pow(XP_LEVEL_GROWTH, level - 1));
 }
 

@@ -1,11 +1,7 @@
 import { WEAPON_KINDS } from '../utils/Constants';
 import type { WeaponKind } from '../utils/Types';
 import type { CombatLimits, WeaponConfig } from './WeaponConfig';
-import {
-	COMBAT_CONFIG_VERSION,
-	COMBAT_LIMITS,
-	WEAPON_CONFIGS,
-} from './WeaponConfigs';
+import { COMBAT_LIMITS, WEAPON_CONFIGS } from './WeaponConfigs';
 
 function requireFinitePositive(name: string, value: number): void {
 	if (!Number.isFinite(value) || value <= 0)
@@ -173,15 +169,11 @@ function validateLimits(limits: Readonly<CombatLimits>): void {
 
 export class WeaponConfigRegistry {
 	private readonly configs: ReadonlyMap<WeaponKind, Readonly<WeaponConfig>>;
-	readonly version: number;
-	readonly limits: Readonly<CombatLimits>;
 
 	constructor(
 		configs: readonly WeaponConfig[] = WEAPON_CONFIGS,
 		limits: Readonly<CombatLimits> = COMBAT_LIMITS,
-		version: number = COMBAT_CONFIG_VERSION,
 	) {
-		requirePositiveInteger('combatConfigVersion', version);
 		validateLimits(limits);
 		const entries = new Map<WeaponKind, Readonly<WeaponConfig>>();
 		for (const config of configs) {
@@ -197,8 +189,7 @@ export class WeaponConfigRegistry {
 			if (!entries.has(kind))
 				throw new RangeError(`Missing weapon config: ${kind}`);
 		}
-		this.version = version;
-		this.limits = deepFreeze(limits);
+		deepFreeze(limits);
 		this.configs = entries;
 	}
 

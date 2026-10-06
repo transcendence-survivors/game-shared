@@ -144,14 +144,14 @@ export interface TomeDefinition {
 	iconUrl: UpgradeDef['iconUrl'];
 }
 
-export interface WeaponTraitDefinition {
+interface WeaponTraitDefinition {
 	stat: WeaponUpgradeStat;
 	baseValue: number;
 	valueType: 'ratio' | 'integer';
 }
 
 export const TOME_SLOT_LIMIT = 4;
-export const TOME_MAX_LEVEL = 99;
+const TOME_MAX_LEVEL = 99;
 
 export const RARITY_CONFIG: Readonly<
 	Record<

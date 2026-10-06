@@ -19,7 +19,7 @@ type HitboxBuffer = Vec3d & {
 	height?: number;
 };
 
-export interface MonsterCylinderSource extends Vec3d {
+interface MonsterCylinderSource extends Vec3d {
 	kind: string;
 	isBoss: boolean;
 	rotationY: number;
@@ -126,7 +126,7 @@ function verticalOverlap(
 	return Math.abs(aY - bY) <= (aHeight + bHeight) / 2;
 }
 
-export function doVerticalCylindersIntersect(
+function doVerticalCylindersIntersect(
 	a: VerticalCylinder,
 	b: VerticalCylinder,
 ): boolean {
@@ -313,7 +313,7 @@ export function doesSweptBoxHitSphere(
 	return dx * dx + dy * dy + dz * dz <= sphere.radius ** 2;
 }
 
-export function doesHalfCylinderHitVerticalCylinder(
+function doesHalfCylinderHitVerticalCylinder(
 	sector: VerticalCylinder & { rotationY: number; halfAngle: number },
 	target: VerticalCylinder,
 ): boolean {
@@ -330,7 +330,7 @@ export function doesHalfCylinderHitVerticalCylinder(
 	);
 }
 
-export function doesHalfCylinderHitSphere(
+function doesHalfCylinderHitSphere(
 	sector: VerticalCylinder & { rotationY: number; halfAngle: number },
 	sphere: Vec3d & { radius: number },
 ): boolean {

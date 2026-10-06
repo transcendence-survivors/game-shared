@@ -1,6 +1,6 @@
 import { type Vec2d } from '../utils/Types';
 
-export interface ChaseStep extends Vec2d {
+interface ChaseStep extends Vec2d {
 	rotationY: number;
 	inRange: boolean;
 }

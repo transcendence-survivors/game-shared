@@ -2,7 +2,7 @@ import { makeNoise2D, type Noise2D } from './Noise';
 import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
-export type WorldNormal = Vec3d;
+type WorldNormal = Vec3d;
 
 export interface WorldSurfaceSample extends WorldNormal {
 	height: number;
