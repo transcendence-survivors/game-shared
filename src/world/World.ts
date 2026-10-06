@@ -56,7 +56,7 @@ export class World {
 	readonly TIERS = 8;
 	readonly isSmoothTerrain = true;
 	private readonly terrainBaseHeight = 24;
-	private readonly terrainHeightAmplitude = 18;
+	private readonly terrainHeightAmplitude = 12;
 
 	private noise: Noise2D;
 	private scaleDiv = 22;
