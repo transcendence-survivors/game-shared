@@ -12,8 +12,6 @@ export const ClientMessage = {
 	RequestUpgradeOptions: 'requestUpgradeOptions',
 	SelectUpgrade: 'selectUpgrade',
 	Revive: 'revive',
-	SetDebugImmortal: 'setDebugImmortal',
-	SetDebugMonsterStress: 'setDebugMonsterStress',
 } as const;
 
 export const MOVE_INPUT_BOOLEAN_FIELDS = [

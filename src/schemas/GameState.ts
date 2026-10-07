@@ -100,7 +100,6 @@ export class Player extends Schema {
 	@type('number') rotationY: number = 0;
 	@type('number') velocityY: number = 0;
 	@type('boolean') isGrounded: boolean = true;
-	@type('boolean') debugImmortal: boolean = false;
 	@type('number') lastProcessedSeq: number = 0;
 	@type('string') animState: 'idle' | 'moving' = 'idle';
 	@type(PlayerStats) stats = new PlayerStats();
