@@ -108,7 +108,7 @@ export {
 	type WorldSurfaceSample,
 } from './world/World';
 
-export { makeNoise2D, mulberry32, type Noise2D } from './world/Noise';
+export { hashCell, makeNoise2D, mulberry32, type Noise2D } from './world/Noise';
 
 export {
 	createMoveInput,

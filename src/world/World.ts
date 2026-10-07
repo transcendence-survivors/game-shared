@@ -1,4 +1,4 @@
-import { makeNoise2D, type Noise2D } from './Noise';
+import { hashCell, makeNoise2D, type Noise2D } from './Noise';
 import { CARDINAL_GRID_DIRECTIONS } from '../utils/Constants';
 import type { Vec3d } from '../utils/Types';
 
@@ -170,14 +170,6 @@ export class World {
 		return m;
 	}
 
-	private hash(gx: number, gz: number): number {
-		let h =
-			(Math.imul(gx | 0, 374761393) + Math.imul(gz | 0, 668265263)) ^
-			this.seed;
-		h = Math.imul(h ^ (h >>> 13), 1274126177);
-		return (h ^ (h >>> 16)) >>> 0;
-	}
-
 	private slopeCandidate(
 		gx: number,
 		gz: number,
@@ -196,7 +188,7 @@ export class World {
 			}
 		}
 		if (!count) return null;
-		const h = this.hash(gx, gz);
+		const h = hashCell(this.seed, gx, gz);
 		if (h % 100 >= this.rampChance) return null;
 		let selected = (h >>> 8) % count;
 		for (let index = 0; index < CARDINAL_GRID_DIRECTIONS.length; index++)
@@ -220,13 +212,13 @@ export class World {
 	): readonly [number, number] | null {
 		const d = this.slopeCandidate(gx, gz);
 		if (!d) return null;
-		const h = this.hash(gx, gz);
+		const h = hashCell(this.seed, gx, gz);
 		for (const n of CARDINAL_GRID_DIRECTIONS) {
 			const dn = this.slopeCandidate(gx + n[0], gz + n[1]);
 			if (
 				dn &&
 				(dn[0] !== d[0] || dn[1] !== d[1]) &&
-				this.hash(gx + n[0], gz + n[1]) < h
+				hashCell(this.seed, gx + n[0], gz + n[1]) < h
 			)
 				return null;
 		}

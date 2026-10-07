@@ -10,6 +10,12 @@ export function mulberry32(seed: number): () => number {
 	};
 }
 
+export function hashCell(seed: number, x: number, z: number): number {
+	let h = (Math.imul(x | 0, 374761393) + Math.imul(z | 0, 668265263)) ^ seed;
+	h = Math.imul(h ^ (h >>> 13), 1274126177);
+	return (h ^ (h >>> 16)) >>> 0;
+}
+
 export function makeNoise2D(seed: number): Noise2D {
 	const rand = mulberry32(seed);
 
