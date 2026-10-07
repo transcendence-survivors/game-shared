@@ -53,6 +53,7 @@ export class World {
 	readonly seed: number;
 	readonly CELL = 12;
 	readonly N = 4;
+	readonly CHUNK_SIZE = this.N * this.CELL;
 	readonly TIERS = 8;
 	readonly isSmoothTerrain = true;
 	private readonly terrainBaseHeight = 24;
